@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina Core — Live Power Monitor for Mac</title>
+<meta name="description" content="See every watt your Mac consumes in real time. Cost projections, per-app analytics, historical trends. Available on the Mac App Store.">
+<meta property="og:title" content="Lumina Core — Live Power Monitor for Mac">
+<meta property="og:description" content="See every watt your Mac consumes in real time.">
+<meta property="og:image" content="https://luminacore.onuryasar.org/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #07070F;
+  --bg2:      #0D0D1A;
+  --card:     rgba(255,255,255,0.04);
+  --border:   rgba(255,255,255,0.08);
+  --amber:    #FFB800;
+  --amber2:   #FF8C00;
+  --blue:     #4FC3F7;
+  --green:    #4ADE80;
+  --red:      #FF6B6B;
+  --text:     #F0F0F8;
+  --muted:    #6B6B8A;
+  --font:     'Space Grotesk', sans-serif;
+  --mono:     'Space Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── AURORA BG ── */
+.aurora{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 10%, rgba(255,184,0,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 80%, rgba(79,195,247,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,140,0,0.03) 0%, transparent 50%);
+}
+
+/* ── GRID LINES ── */
+.grid-bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background-image:
+    linear-gradient(rgba(255,184,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,184,0,0.03) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ── LANG NAV ── */
+.lang-nav{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  display:flex;gap:4px;padding:5px;
+  background:rgba(13,13,26,0.8);
+  border:1px solid var(--border);
+  backdrop-filter:blur(24px);
+  border-radius:100px;z-index:1000;
+}
+.lang-nav button{
+  padding:7px 16px;border:none;background:transparent;
+  color:var(--muted);font-size:12px;font-weight:600;
+  font-family:var(--font);cursor:pointer;border-radius:100px;
+  letter-spacing:.5px;transition:all .25s;
+}
+.lang-nav button.active{background:var(--amber);color:#000;}
+.lang-nav button:not(.active):hover{color:var(--text);}
+
+.container{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+/* ── HERO ── */
+header{padding:130px 0 80px;text-align:center;position:relative;}
+
+.app-icon-wrap{
+  display:inline-block;margin-bottom:44px;position:relative;
+}
+.app-icon-wrap::before{
+  content:'';position:absolute;inset:-14px;border-radius:42px;
+  background:radial-gradient(circle, rgba(255,184,0,0.18), transparent 70%);
+  animation:pulse-ring 3s ease-in-out infinite;
+}
+@keyframes pulse-ring{
+  0%,100%{transform:scale(1);opacity:.5;}
+  50%{transform:scale(1.06);opacity:1;}
+}
+.app-icon{
+  width:120px;height:120px;border-radius:27px;
+  overflow:hidden;
+  border:2px solid rgba(255,184,0,0.35);
+  box-shadow:
+    0 0 0 6px rgba(255,184,0,0.06),
+    0 0 40px rgba(255,184,0,0.2),
+    0 24px 64px rgba(0,0,0,0.65);
+  position:relative;
+}
+/* amber tint overlay for color harmony */
+.app-icon::after{
+  content:'';position:absolute;inset:0;border-radius:25px;
+  background:linear-gradient(135deg,rgba(255,184,0,0.08) 0%,transparent 60%);
+  pointer-events:none;
+}
+.app-icon img{width:100%;height:100%;display:block;}
+
+/* LIVE POWER MONITOR badge — anchored below icon */
+.hero-tag{
+  position:absolute;
+  bottom:-20px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(13,13,26,0.95);
+  border:1px solid rgba(255,184,0,0.35);
+  color:var(--amber);font-size:10px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:5px 12px;border-radius:100px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.5);
+  backdrop-filter:blur(8px);
+}
+.hero-tag .dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--amber);
+  box-shadow:0 0 6px var(--amber);
+  animation:blink 1.5s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+h1{
+  font-size:clamp(2.8rem,6vw,5rem);
+  font-weight:700;letter-spacing:-2px;line-height:1.05;
+  margin-bottom:20px;
+}
+h1 em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--amber),var(--amber2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.hero-p{
+  font-size:1.15rem;color:var(--muted);
+  max-width:600px;margin:0 auto 36px;line-height:1.7;
+}
+
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.btn-store{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--amber);color:#000;
+  font-family:var(--font);font-weight:700;font-size:14px;
+  padding:14px 26px;border-radius:14px;
+  border:none;cursor:pointer;text-decoration:none;
+  box-shadow:0 0 24px rgba(255,184,0,0.3);
+  transition:all .2s;
+}
+.btn-store:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,184,0,0.45);}
+.btn-store svg{width:20px;height:20px;}
+
+.platform-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  color:var(--muted);font-size:11px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:6px 14px;border-radius:100px;
+}
+
+/* ── LIVE WATT WIDGET ── */
+.widget-section{padding:0 0 90px;}
+.widget-wrap{
+  max-width:680px;margin:0 auto;
+  background:rgba(13,13,26,0.7);
+  border:1px solid rgba(255,184,0,0.15);
+  border-radius:28px;
+  backdrop-filter:blur(20px);
+  overflow:hidden;
+  box-shadow:0 0 60px rgba(255,184,0,0.05),0 40px 80px rgba(0,0,0,0.4);
+}
+.widget-topbar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+}
+.dot-r{width:12px;height:12px;border-radius:50%;background:#FF5F57;}
+.dot-y{width:12px;height:12px;border-radius:50%;background:#FEBC2E;}
+.dot-g{width:12px;height:12px;border-radius:50%;background:#28C840;}
+.widget-title{
+  flex:1;text-align:center;font-size:12px;font-weight:500;
+  color:var(--muted);letter-spacing:.5px;font-family:var(--mono);
+}
+.widget-body{padding:28px 32px;}
+
+.live-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:6px;
+}
+.live-badge{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  color:var(--red);
+}
+.live-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1s infinite;}
+.efficient-badge{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;
+  color:var(--green);
+  background:rgba(74,222,128,0.1);
+  border:1px solid rgba(74,222,128,0.2);
+  padding:3px 10px;border-radius:100px;
+}
+
+.watt-display{
+  font-family:var(--mono);
+  font-size:clamp(3.5rem,10vw,6rem);
+  font-weight:700;letter-spacing:-3px;
+  line-height:1;margin-bottom:4px;
+  background:linear-gradient(90deg,#fff 60%,rgba(255,255,255,0.5));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.watt-unit{
+  font-family:var(--mono);font-size:1.5rem;
+  color:var(--muted);font-weight:400;margin-left:4px;
+}
+.cost-hint{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.cost-hint span{color:var(--amber);font-weight:600;}
+
+/* Waveform */
+.waveform{height:60px;margin-bottom:24px;position:relative;overflow:hidden;}
+.waveform canvas{width:100%;height:100%;}
+
+.breakdown-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  margin-bottom:16px;
+}
+.bd-item{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:12px;padding:10px 12px;
+  text-align:center;
+}
+.bd-label{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.bd-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);}
+.bd-val.amber{color:var(--amber);}
+.bd-val.blue{color:var(--blue);}
+.bd-val.green{color:var(--green);}
+
+.stat-note{
+  font-size:10px;color:var(--muted);letter-spacing:.5px;
+  border-top:1px solid var(--border);padding-top:14px;
+  display:flex;align-items:center;gap:6px;
+}
+.stat-note::before{
+  content:'⚡';font-size:10px;
+}
+
+/* ── SECTION HEADERS ── */
+.section-label{
+  display:inline-block;
+  font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--amber);margin-bottom:14px;
+}
+.section-title{
+  font-size:clamp(1.8rem,3.5vw,2.8rem);
+  font-weight:700;letter-spacing:-1px;margin-bottom:14px;
+}
+.section-desc{font-size:1rem;color:var(--muted);max-width:540px;line-height:1.7;}
+
+/* ── FEATURES ── */
+.features-section{padding:80px 0;}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:16px;margin-top:48px;
+}
+.feat-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;padding:28px;
+  transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.feat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,184,0,0.4),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.feat-card:hover{border-color:rgba(255,184,0,0.2);transform:translateY(-3px);}
+.feat-card:hover::before{opacity:1;}
+.feat-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(255,184,0,0.08);
+  border:1px solid rgba(255,184,0,0.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:16px;
+}
+.feat-title{font-size:1rem;font-weight:600;margin-bottom:8px;}
+.feat-desc{font-size:.9rem;color:var(--muted);line-height:1.6;}
+
+/* ── STATS STRIP ── */
+.stats-strip{
+  padding:50px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  margin:20px 0;
+}
+.stats-inner{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+}
+.stat-col{
+  text-align:center;
+  padding:20px;
+  border-right:1px solid var(--border);
+}
+.stat-col:last-child{border-right:none;}
+.stat-num{
+  font-family:var(--mono);
+  font-size:2.2rem;font-weight:700;letter-spacing:-1px;
+  background:linear-gradient(90deg,var(--amber),var(--amber2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.stat-lbl{font-size:.8rem;color:var(--muted);font-weight:500;letter-spacing:.3px;}
+
+/* ── PRIVACY STRIP ── */
+.privacy-section{
+  padding:80px 0;
+}
+.privacy-card{
+  background:linear-gradient(135deg,rgba(79,195,247,0.05),rgba(255,184,0,0.03));
+  border:1px solid rgba(79,195,247,0.15);
+  border-radius:24px;padding:48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:40px;
+  align-items:center;
+}
+.privacy-list{list-style:none;margin-top:20px;}
+.privacy-list li{
+  display:flex;align-items:flex-start;gap:12px;
+  font-size:.95rem;color:var(--muted);
+  padding:10px 0;border-bottom:1px solid var(--border);
+  line-height:1.5;
+}
+.privacy-list li:last-child{border-bottom:none;}
+.privacy-list li::before{
+  content:'✓';color:var(--green);font-weight:700;
+  flex-shrink:0;margin-top:1px;
+}
+.privacy-visual{
+  text-align:center;
+  font-size:7rem;
+  line-height:1;
+  filter:drop-shadow(0 0 30px rgba(79,195,247,0.2));
+}
+
+/* ── PLATFORMS ── */
+.platforms-section{padding:60px 0 80px;}
+.chip-grid{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;
+}
+.chip{
+  font-family:var(--mono);
+  font-size:12px;font-weight:700;
+  padding:8px 16px;border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  color:var(--muted);letter-spacing:.5px;
+}
+.chip.as{border-color:rgba(255,184,0,0.25);color:var(--amber);background:rgba(255,184,0,0.05);}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:80px 0 60px;
+  text-align:center;
+  color:var(--muted);
+}
+.btn-coffee{
+  display:inline-flex;align-items:center;gap:9px;
+  width:fit-content;
+  background:#FFDD00;color:#000;font-weight:700;font-size:.9rem;
+  font-family:var(--font);padding:12px 26px;border-radius:100px;
+  text-decoration:none;transition:all .25s;margin:0 auto 28px;
+  letter-spacing:.3px;
+}
+.btn-coffee:hover{transform:translateY(-4px);box-shadow:0 15px 35px rgba(255,221,0,0.35);}
+.footer-signature{
+  color:var(--amber);font-weight:800;margin:20px 0 6px;
+  display:block;letter-spacing:2px;font-size:.9rem;
+}
+.footer-dev{font-size:.8rem;color:var(--muted);margin-bottom:28px;}
+.footer-links{
+  display:flex;justify-content:center;gap:20px;flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.footer-links a{
+  font-size:.85rem;color:var(--muted);text-decoration:none;
+  transition:color .2s;font-weight:600;
+}
+.footer-links a:hover{color:var(--amber);}
+.footer-copy{font-size:.8rem;color:var(--muted);opacity:.5;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .stats-inner{grid-template-columns:repeat(2,1fr);}
+  .stat-col:nth-child(2){border-right:none;}
+  .stat-col:nth-child(3){border-top:1px solid var(--border);}
+  .stat-col:nth-child(4){border-top:1px solid var(--border);border-right:none;}
+  .privacy-card{grid-template-columns:1fr;}
+  .privacy-visual{font-size:4rem;}
+  .breakdown-row{grid-template-columns:repeat(2,1fr);}
+  .footer-links{flex-direction:column;align-items:center;gap:12px;}
+}
+
+[data-lang]{display:none;}
+[data-lang].active{display:block;}
+[data-lang-inline]{display:none;}
+[data-lang-inline].active{display:inline;}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="grid-bg"></div>
+
+<!-- LANG NAV -->
+<nav class="lang-nav">
+  <button onclick="setLang('en')" id="btn-en">EN</button>
+  <button onclick="setLang('tr')" id="btn-tr">TR</button>
+  <button onclick="setLang('ru')" id="btn-ru">RU</button>
+  <button onclick="setLang('es')" id="btn-es">ES</button>
+</nav>
+
+<!-- HERO -->
+<header>
+  <div class="container">
+    <div class="app-icon-wrap">
+      <div class="app-icon"><img src="icon.png" alt="Lumina Core"></div>
+      <div class="hero-tag">
+        <span class="dot"></span>
+        <span data-lang="en" class="active">LIVE POWER MONITOR</span>
+        <span data-lang="tr">CANLI GÜÇ İZLEYİCİ</span>
+        <span data-lang="ru">МОНИТОР ПИТАНИЯ</span>
+        <span data-lang="es">MONITOR DE ENERGÍA</span>
+      </div>
+    </div>
+
+    <h1>
+      <span data-lang="en" class="active">See Every Watt.<br><em>Know Every Cost.</em></span>
+      <span data-lang="tr">Her Watt'ı Gör.<br><em>Her Maliyeti Bil.</em></span>
+      <span data-lang="ru">Видь Каждый Ватт.<br><em>Знай Каждый Расход.</em></span>
+      <span data-lang="es">Ve Cada Vatio.<br><em>Conoce Cada Costo.</em></span>
+    </h1>
+
+    <p class="hero-p">
+      <span data-lang="en" class="active">Real-time power consumption monitoring for every Mac. Track watts, calculate electricity costs, analyze per-app energy usage — all on-device, all private.</span>
+      <span data-lang="tr">Her Mac için gerçek zamanlı güç tüketimi izleme. Watt'ları takip et, elektrik maliyetlerini hesapla, uygulama bazında enerji kullanımını analiz et — tamamı cihazında, tamamı özel.</span>
+      <span data-lang="ru">Мониторинг потребления энергии в реальном времени для любого Mac. Отслеживайте ватты, рассчитывайте стоимость электричества, анализируйте энергопотребление по приложениям.</span>
+      <span data-lang="es">Monitoreo en tiempo real del consumo eléctrico para cualquier Mac. Rastrea vatios, calcula costos de electricidad, analiza el uso de energía por app — todo en tu dispositivo, todo privado.</span>
+    </p>
+
+    <div class="cta-row">
+      <a href="https://apps.apple.com/app/lumina-core-lpm" class="btn-store">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <span data-lang="en" class="active">Download on Mac App Store</span>
+        <span data-lang="tr">Mac App Store'dan İndir</span>
+        <span data-lang="ru">Загрузить в Mac App Store</span>
+        <span data-lang="es">Descargar en Mac App Store</span>
+      </a>
+    </div>
+
+    <div class="platform-pill">
+      <span>⚙</span>
+      <span data-lang="en" class="active">macOS 14.0+ · Apple Silicon &amp; Intel</span>
+      <span data-lang="tr">macOS 14.0+ · Apple Silicon ve Intel</span>
+      <span data-lang="ru">macOS 14.0+ · Apple Silicon и Intel</span>
+      <span data-lang="es">macOS 14.0+ · Apple Silicon e Intel</span>
+    </div>
+  </div>
+</header>
+
+<!-- LIVE WIDGET MOCKUP -->
+<section class="widget-section">
+  <div class="container">
+    <div class="widget-wrap">
+      <div class="widget-topbar">
+        <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        <span class="widget-title">Lumina Core — Live Power Monitor</span>
+      </div>
+      <div class="widget-body">
+        <div class="live-row">
+          <span class="live-badge"><span class="dot"></span>
+            <span data-lang="en" class="active">REAL-TIME POWER</span>
+            <span data-lang="tr">ANLIK GÜÇ</span>
+            <span data-lang="ru">ТЕКУЩАЯ МОЩНОСТЬ</span>
+            <span data-lang="es">POTENCIA EN VIVO</span>
+          </span>
+          <span class="efficient-badge" id="eff-badge">⚡ EFFICIENT</span>
+        </div>
+
+        <div>
+          <span class="watt-display" id="watt-num">9.8</span>
+          <span class="watt-unit">W</span>
+        </div>
+
+        <p class="cost-hint">
+          <span data-lang="en" class="active">Hourly: <span id="cost-val">$0.05</span> · Est. Monthly: <span id="cost-mo">$37</span></span>
+          <span data-lang="tr">Saatlik: <span id="cost-val-tr">₺0.05</span> · Tahmini Aylık: <span id="cost-mo-tr">₺37</span></span>
+          <span data-lang="ru">В час: <span>₽0.05</span> · Оцен. в месяц: <span>₽37</span></span>
+          <span data-lang="es">Por hora: <span>$0.05</span> · Est. mensual: <span>$37</span></span>
+        </p>
+
+        <div class="waveform">
+          <canvas id="wave-canvas" height="60"></canvas>
+        </div>
+
+        <div class="breakdown-row">
+          <div class="bd-item">
+            <div class="bd-label" data-lang="en">CPU</div>
+            <div class="bd-label" data-lang="tr" style="display:none">İŞLEMCİ</div>
+            <div class="bd-label" data-lang="ru" style="display:none">ПРОЦ.</div>
+            <div class="bd-label" data-lang="es" style="display:none">CPU</div>
+            <div class="bd-val amber" id="bd-cpu">4.9 W</div>
+          </div>
+          <div class="bd-item">
+            <div class="bd-label">GPU</div>
+            <div class="bd-val blue" id="bd-gpu">0.5 W</div>
+          </div>
+          <div class="bd-item">
+            <div class="bd-label" data-lang="en">MEMORY</div>
+            <div class="bd-label" data-lang="tr" style="display:none">BELLEK</div>
+            <div class="bd-label" data-lang="ru" style="display:none">ПАМЯТЬ</div>
+            <div class="bd-label" data-lang="es" style="display:none">MEMORIA</div>
+            <div class="bd-val green" id="bd-ram">1.4 W</div>
+          </div>
+          <div class="bd-item">
+            <div class="bd-label" data-lang="en">OTHER</div>
+            <div class="bd-label" data-lang="tr" style="display:none">DİĞER</div>
+            <div class="bd-label" data-lang="ru" style="display:none">ДР.</div>
+            <div class="bd-label" data-lang="es" style="display:none">OTRO</div>
+            <div class="bd-val" id="bd-other">3.5 W</div>
+          </div>
+        </div>
+
+        <p class="stat-note">
+          <span data-lang="en" class="active">Estimated via Statistical Model · Mac (Apple M4) · Power Adapter</span>
+          <span data-lang="tr">İstatistiksel Model ile Tahmin Edildi · Mac (Apple M4) · Güç Adaptörü</span>
+          <span data-lang="ru">Оценено статистической моделью · Mac (Apple M4) · Адаптер питания</span>
+          <span data-lang="es">Estimado por modelo estadístico · Mac (Apple M4) · Adaptador de corriente</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<section class="stats-strip">
+  <div class="container">
+    <div class="stats-inner">
+      <div class="stat-col">
+        <div class="stat-num">8</div>
+        <div class="stat-lbl" data-lang="en">Currencies supported</div>
+        <div class="stat-lbl" data-lang="tr" style="display:none">Desteklenen para birimi</div>
+        <div class="stat-lbl" data-lang="ru" style="display:none">Поддерживаемых валют</div>
+        <div class="stat-lbl" data-lang="es" style="display:none">Monedas soportadas</div>
+      </div>
+      <div class="stat-col">
+        <div class="stat-num">1s</div>
+        <div class="stat-lbl" data-lang="en">Live update interval</div>
+        <div class="stat-lbl" data-lang="tr" style="display:none">Canlı güncelleme aralığı</div>
+        <div class="stat-lbl" data-lang="ru" style="display:none">Интервал обновления</div>
+        <div class="stat-lbl" data-lang="es" style="display:none">Intervalo de actualización</div>
+      </div>
+      <div class="stat-col">
+        <div class="stat-num">6</div>
+        <div class="stat-lbl" data-lang="en">Chart time ranges</div>
+        <div class="stat-lbl" data-lang="tr" style="display:none">Grafik zaman aralığı</div>
+        <div class="stat-lbl" data-lang="ru" style="display:none">Временных диапазонов</div>
+        <div class="stat-lbl" data-lang="es" style="display:none">Rangos de tiempo</div>
+      </div>
+      <div class="stat-col">
+        <div class="stat-num">4</div>
+        <div class="stat-lbl" data-lang="en">Languages</div>
+        <div class="stat-lbl" data-lang="tr" style="display:none">Dil</div>
+        <div class="stat-lbl" data-lang="ru" style="display:none">Языка</div>
+        <div class="stat-lbl" data-lang="es" style="display:none">Idiomas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="container">
+    <p class="section-label" data-lang="en">Features</p>
+    <p class="section-label" data-lang="tr" style="display:none">Özellikler</p>
+    <p class="section-label" data-lang="ru" style="display:none">Возможности</p>
+    <p class="section-label" data-lang="es" style="display:none">Características</p>
+
+    <h2 class="section-title">
+      <span data-lang="en" class="active">Everything you need to<br>understand your Mac's power.</span>
+      <span data-lang="tr">Mac'inizin gücünü anlamak için<br>ihtiyacınız olan her şey.</span>
+      <span data-lang="ru">Всё необходимое для понимания<br>энергопотребления вашего Mac.</span>
+      <span data-lang="es">Todo lo que necesitas para entender<br>el consumo de tu Mac.</span>
+    </h2>
+
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">
+          <span data-lang="en" class="active">Real-Time Watt Display</span>
+          <span data-lang="tr">Gerçek Zamanlı Watt Göstergesi</span>
+          <span data-lang="ru">Показ мощности в реальном времени</span>
+          <span data-lang="es">Visualización de vatios en tiempo real</span>
+        </div>
+        <p class="feat-desc">
+          <span data-lang="en" class="active">Live power consumption visible in your menu bar, updated every second. Know your Mac's energy draw at a glance.</span>
+          <span data-lang="tr">Menü çubuğunda her saniye güncellenen canlı güç tüketimi. Mac'inizin enerji çekimini bir bakışta görün.</span>
+          <span data-lang="ru">Живое потребление мощности в строке меню, обновляется каждую секунду.</span>
+          <span data-lang="es">Consumo de energía en vivo en tu barra de menú, actualizado cada segundo.</span>
+        </p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">💰</div>
+        <div class="feat-title">
+          <span data-lang="en" class="active">Electricity Cost Calculator</span>
+          <span data-lang="tr">Elektrik Maliyeti Hesaplayıcı</span>
+          <span data-lang="ru">Расчёт стоимости электроэнергии</span>
+          <span data-lang="es">Calculadora de costo eléctrico</span>
+        </div>
+        <p class="feat-desc">
+          <span data-lang="en" class="active">Hourly, daily, and monthly cost projections in 50+ currencies. Set your local electricity rate and see exactly what your Mac costs to run.</span>
+          <span data-lang="tr">50+ para biriminde saatlik, günlük ve aylık maliyet projeksiyonları. Yerel elektrik tarifenizi ayarlayın ve Mac'inizin tam maliyetini görün.</span>
+          <span data-lang="ru">Прогноз затрат по часам, дням и месяцам в 50+ валютах.</span>
+          <span data-lang="es">Proyecciones de costo por hora, día y mes en 50+ monedas.</span>
+        </p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">
+          <span data-lang="en" class="active">Per-App Power Analytics</span>
+          <span data-lang="tr">Uygulama Bazında Güç Analizi</span>
+          <span data-lang="ru">Анализ энергопотребления по приложениям</span>
+          <span data-lang="es">Análisis de consumo por aplicación</span>
+        </div>
+        <p class="feat-desc">
+          <span data-lang="en" class="active">Discover which apps drain your battery or wallet the most. Sort by estimated watts, CPU, or RAM usage.</span>
+          <span data-lang="tr">Hangi uygulamaların bataryanızı veya cüzdanınızı en çok tükettiğini keşfedin.</span>
+          <span data-lang="ru">Узнайте, какие приложения больше всего расходуют энергию.</span>
+          <span data-lang="es">Descubre qué apps drenan más tu batería o tu bolsillo.</span>
+        </p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title">
+          <span data-lang="en" class="active">Historical Trends</span>
+          <span data-lang="tr">Geçmiş Trendler</span>
+          <span data-lang="ru">Исторические тренды</span>
+          <span data-lang="es">Tendencias históricas</span>
+        </div>
+        <p class="feat-desc">
+          <span data-lang="en" class="active">Power consumption charts from 5 minutes to 1 year. Weekly comparisons, daily patterns, peak hour detection.</span>
+          <span data-lang="tr">5 dakikadan 1 yıla kadar güç tüketimi grafikleri. Haftalık karşılaştırmalar, günlük örüntüler.</span>
+          <span data-lang="ru">Графики от 5 минут до 1 года. Недельные сравнения и анализ паттернов.</span>
+          <span data-lang="es">Gráficos desde 5 minutos hasta 1 año. Comparaciones semanales y patrones diarios.</span>
+        </p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">🔔</div>
+        <div class="feat-title">
+          <span data-lang="en" class="active">Smart Energy Alerts</span>
+          <span data-lang="tr">Akıllı Enerji Uyarıları</span>
+          <span data-lang="ru">Умные уведомления об энергии</span>
+          <span data-lang="es">Alertas inteligentes de energía</span>
+        </div>
+        <p class="feat-desc">
+          <span data-lang="en" class="active">Get notified when consumption spikes 25% above normal, or when a background app is quietly draining power.</span>
+          <span data-lang="tr">Tüketim normalin %25 üzerine çıktığında veya arka plan uygulaması güç çektiğinde bildirim alın.</span>
+          <span data-lang="ru">Уведомление при скачке потребления на 25% или утечке энергии в фоне.</span>
+          <span data-lang="es">Notificación cuando el consumo sube 25% o una app en segundo plano drena energía.</span>
+        </p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon">🔒</div>
+        <div class="feat-title">
+          <span data-lang="en" class="active">100% Private & On-Device</span>
+          <span data-lang="tr">%100 Özel ve Cihaz Üzerinde</span>
+          <span data-lang="ru">100% конфиденциально</span>
+          <span data-lang="es">100% privado y en el dispositivo</span>
+        </div>
+        <p class="feat-desc">
+          <span data-lang="en" class="active">No data ever leaves your Mac. No accounts, no tracking, no cloud. Pure local intelligence. App Store sandboxed.</span>
+          <span data-lang="tr">Hiçbir veri Mac'inizden çıkmaz. Hesap yok, takip yok, bulut yok. Saf yerel zeka.</span>
+          <span data-lang="ru">Никакие данные не покидают ваш Mac. Без аккаунтов, трекинга и облака.</span>
+          <span data-lang="es">Ningún dato sale de tu Mac. Sin cuentas, sin rastreo, sin nube.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section class="privacy-section">
+  <div class="container">
+    <div class="privacy-card">
+      <div>
+        <p class="section-label" data-lang="en">Privacy First</p>
+        <p class="section-label" data-lang="tr" style="display:none">Önce Gizlilik</p>
+        <p class="section-label" data-lang="ru" style="display:none">Конфиденциальность прежде всего</p>
+        <p class="section-label" data-lang="es" style="display:none">La privacidad primero</p>
+
+        <h3 class="section-title" style="font-size:1.8rem;">
+          <span data-lang="en" class="active">Your data never leaves your Mac.</span>
+          <span data-lang="tr">Verileriniz asla Mac'inizden çıkmaz.</span>
+          <span data-lang="ru">Ваши данные никогда не покидают Mac.</span>
+          <span data-lang="es">Tus datos nunca salen de tu Mac.</span>
+        </h3>
+
+        <ul class="privacy-list">
+          <li>
+            <span data-lang="en" class="active">No analytics, no crash reports sent externally</span>
+            <span data-lang="tr">Dışarıya gönderilen analitik veya çökme raporu yok</span>
+            <span data-lang="ru">Никаких внешних аналитических или отчётов об ошибках</span>
+            <span data-lang="es">Sin analíticas ni reportes de errores enviados externamente</span>
+          </li>
+          <li>
+            <span data-lang="en" class="active">No account or login required</span>
+            <span data-lang="tr">Hesap veya giriş gerekmiyor</span>
+            <span data-lang="ru">Учётная запись не требуется</span>
+            <span data-lang="es">No requiere cuenta ni inicio de sesión</span>
+          </li>
+          <li>
+            <span data-lang="en" class="active">All measurements stored only on your Mac</span>
+            <span data-lang="tr">Tüm ölçümler yalnızca Mac'inizde saklanır</span>
+            <span data-lang="ru">Все измерения хранятся только на вашем Mac</span>
+            <span data-lang="es">Todas las mediciones se almacenan solo en tu Mac</span>
+          </li>
+          <li>
+            <span data-lang="en" class="active">macOS App Store sandboxed — verified by Apple</span>
+            <span data-lang="tr">macOS App Store sandbox — Apple tarafından doğrulandı</span>
+            <span data-lang="ru">Sandbox App Store — проверено Apple</span>
+            <span data-lang="es">Sandbox del App Store de macOS — verificado por Apple</span>
+          </li>
+        </ul>
+      </div>
+      <div class="privacy-visual">🔒</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section class="platforms-section">
+  <div class="container">
+    <p class="section-label" data-lang="en">Compatible with</p>
+    <p class="section-label" data-lang="tr" style="display:none">Uyumlu</p>
+    <p class="section-label" data-lang="ru" style="display:none">Совместимо с</p>
+    <p class="section-label" data-lang="es" style="display:none">Compatible con</p>
+
+    <h3 class="section-title" style="font-size:1.6rem;">
+      <span data-lang="en" class="active">Every Mac. Every chip. Every generation.</span>
+      <span data-lang="tr">Her Mac. Her işlemci. Her nesil.</span>
+      <span data-lang="ru">Любой Mac. Любой чип. Любое поколение.</span>
+      <span data-lang="es">Cada Mac. Cada chip. Cada generación.</span>
+    </h3>
+
+    <div class="chip-grid">
+      <span class="chip as">Apple M1</span>
+      <span class="chip as">Apple M2</span>
+      <span class="chip as">Apple M3</span>
+      <span class="chip as">Apple M4</span>
+      <span class="chip as">Apple M5</span>
+      <span class="chip as">M-Pro / M-Max / M-Ultra</span>
+      <span class="chip">Intel Core i3</span>
+      <span class="chip">Intel Core i5</span>
+      <span class="chip">Intel Core i7</span>
+      <span class="chip">Intel Core i9</span>
+      <span class="chip">MacBook Air</span>
+      <span class="chip">MacBook Pro</span>
+      <span class="chip">Mac mini</span>
+      <span class="chip">Mac Studio</span>
+      <span class="chip">Mac Pro</span>
+      <span class="chip">iMac</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+
+    <a href="https://buymeacoffee.com/onuryasar" class="btn-coffee" data-lang="en">☕ Buy Me a Coffee</a>
+    <a href="https://buymeacoffee.com/onuryasar" class="btn-coffee" data-lang="tr" style="display:none">☕ Bana Kahve Ismarla</a>
+    <a href="https://buymeacoffee.com/onuryasar" class="btn-coffee" data-lang="ru" style="display:none">☕ Угостить кофе</a>
+    <a href="https://buymeacoffee.com/onuryasar" class="btn-coffee" data-lang="es" style="display:none">☕ Invítame un café</a>
+
+    <span class="footer-signature" data-lang="en">A LEMORAS PROJECT</span>
+    <span class="footer-signature" data-lang="tr" style="display:none">A LEMORAS PROJECT</span>
+    <span class="footer-signature" data-lang="ru" style="display:none">ПРОЕКТ LEMORAS</span>
+    <span class="footer-signature" data-lang="es" style="display:none">UN PROYECTO LEMORAS</span>
+
+    <div class="footer-dev" data-lang="en">Developed by Onur Yasar</div>
+    <div class="footer-dev" data-lang="tr" style="display:none">Onur Yaşar tarafından geliştirildi</div>
+    <div class="footer-dev" data-lang="ru" style="display:none">Разработано Onur Yasar</div>
+    <div class="footer-dev" data-lang="es" style="display:none">Desarrollado por Onur Yaşar</div>
+
+    <div class="footer-links">
+      <a href="privacy.html" data-lang="en">Privacy Policy</a>
+      <a href="privacy.html" data-lang="tr" style="display:none">Gizlilik Politikası</a>
+      <a href="privacy.html" data-lang="ru" style="display:none">Конфиденциальность</a>
+      <a href="privacy.html" data-lang="es" style="display:none">Privacidad</a>
+      <a href="terms.html" data-lang="en">Terms of Use</a>
+      <a href="terms.html" data-lang="tr" style="display:none">Kullanım Koşulları</a>
+      <a href="terms.html" data-lang="ru" style="display:none">Условия использования</a>
+      <a href="terms.html" data-lang="es" style="display:none">Términos de uso</a>
+      <a href="mailto:contact@onuryasar.org">contact@onuryasar.org</a>
+    </div>
+
+    <p class="footer-copy">© 2026 Lumina Core · Onur Yasar · lemoras</p>
+
+  </div>
+</footer>
+
+<script>
+// ── Language switcher ──
+function setLang(l){
+  ['en','tr','ru','es'].forEach(lng=>{
+    document.querySelectorAll('[data-lang="'+lng+'"]').forEach(el=>{
+      const isBlock = getComputedStyle(el).display==='none'||el.dataset.langInline===undefined;
+      el.classList.toggle('active', lng===l);
+      if(lng===l){
+        el.style.display = el.dataset.langInline!==undefined ? 'inline' : '';
+      } else {
+        el.style.display = 'none';
+      }
+    });
+    document.getElementById('btn-'+lng).classList.toggle('active',lng===l);
+  });
+  // fix breakdown labels
+  document.querySelectorAll('.bd-label[data-lang]').forEach(el=>{
+    el.style.display = el.dataset.lang===l ? 'block' : 'none';
+  });
+  // fix stat labels
+  document.querySelectorAll('.stat-lbl[data-lang]').forEach(el=>{
+    el.style.display = el.dataset.lang===l ? 'block' : 'none';
+  });
+  // fix section labels
+  document.querySelectorAll('.section-label[data-lang],.platform-pill [data-lang]').forEach(el=>{
+    el.style.display = el.dataset.lang===l ? 'block' : 'none';
+  });
+}
+
+// Detect browser language
+const bl = (navigator.language||'en').toLowerCase().substring(0,2);
+const supported = ['en','tr','ru','es'];
+setLang(supported.includes(bl)?bl:'en');
+
+// ── Waveform animation ──
+const canvas = document.getElementById('wave-canvas');
+const ctx = canvas.getContext('2d');
+let points = Array.from({length:80}, ()=>9+Math.random()*4);
+let frame=0;
+
+function resizeCanvas(){
+  canvas.width = canvas.parentElement.offsetWidth;
+  canvas.height = 60;
+}
+resizeCanvas();
+window.addEventListener('resize',resizeCanvas);
+
+function drawWave(){
+  const w=canvas.width, h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  // Add new point
+  if(frame%2===0){
+    const newVal = points[points.length-1] + (Math.random()-0.5)*1.5;
+    points.push(Math.min(20,Math.max(4,newVal)));
+    if(points.length>80)points.shift();
+  }
+
+  const max=Math.max(...points);
+  const min=Math.min(...points);
+  const range=max-min||1;
+
+  ctx.beginPath();
+  const step=w/(points.length-1);
+  points.forEach((v,i)=>{
+    const x=i*step;
+    const y=h-4-(v-min)/range*(h-12);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+
+  const grad=ctx.createLinearGradient(0,0,w,0);
+  grad.addColorStop(0,'rgba(255,184,0,0.3)');
+  grad.addColorStop(1,'rgba(255,184,0,0.9)');
+  ctx.strokeStyle=grad;
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // Fill
+  ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+  const fillGrad=ctx.createLinearGradient(0,0,0,h);
+  fillGrad.addColorStop(0,'rgba(255,184,0,0.15)');
+  fillGrad.addColorStop(1,'rgba(255,184,0,0)');
+  ctx.fillStyle=fillGrad;
+  ctx.fill();
+
+  frame++;
+  requestAnimationFrame(drawWave);
+}
+drawWave();
+
+// ── Live watt simulation ──
+let watt = 9.8;
+function animateWatt(){
+  watt += (Math.random()-0.48)*0.3;
+  watt = Math.min(18,Math.max(5,watt));
+  document.getElementById('watt-num').textContent = watt.toFixed(1);
+  // update breakdown proportionally
+  const cpu = (watt*0.50).toFixed(1);
+  const gpu = (watt*0.05+0.3).toFixed(1);
+  const ram = (watt*0.14).toFixed(1);
+  const oth = (watt - cpu - gpu - ram).toFixed(1);
+  document.getElementById('bd-cpu').textContent=cpu+' W';
+  document.getElementById('bd-gpu').textContent=gpu+' W';
+  document.getElementById('bd-ram').textContent=ram+' W';
+  document.getElementById('bd-other').textContent=oth+' W';
+
+  const badge = document.getElementById('eff-badge');
+  const labels = {
+    en:['⚡ EFFICIENT','✦ BALANCED','🔥 HIGH LOAD'],
+    tr:['⚡ VERİMLİ','✦ DENGELİ','🔥 YÜKSEK'],
+    ru:['⚡ ЭФФЕКТ.','✦ БАЛАНС','🔥 НАГРУЗКА'],
+    es:['⚡ EFICIENTE','✦ EQUILIBRADO','🔥 CARGA ALTA']
+  };
+  const activeLang = document.querySelector('.lang-nav button.active')?.id?.replace('btn-','') || 'en';
+  const lvl = watt<12?0:watt<16?1:2;
+  badge.textContent=(labels[activeLang]||labels.en)[lvl];
+  badge.style.color=lvl===0?'#4ADE80':lvl===1?'#FFB800':'#FF6B6B';
+  setTimeout(animateWatt, 1200+Math.random()*800);
+}
+setTimeout(animateWatt,1500);
+</script>
+</body>
+</html>
