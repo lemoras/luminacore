@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina Core LPM — App Store Screenshots (macOS)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: #0d0d0d; color: #fff;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px; gap: 20px;
+}
+
+/* Controls */
+.controls {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    position: sticky; top: 0; background: #0d0d0d; padding: 16px; z-index: 100;
+    border-bottom: 1px solid #222;
+}
+.controls button {
+    padding: 8px 20px; border-radius: 100px; border: 1px solid #444;
+    background: transparent; color: #aaa; font-weight: 700; cursor: pointer;
+    font-size: 13px; transition: 0.2s;
+}
+.controls button.active { background: #FFB800; color: #000; border-color: #FFB800; }
+.controls .sep { width: 1px; background: #333; }
+
+/* Screenshot canvas — 1280×800 */
+.screenshot {
+    width: 1280px; height: 800px;
+    position: relative; overflow: hidden;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* ===== BACKGROUNDS ===== */
+.bg-dark {
+    background: radial-gradient(ellipse at 10% 15%, #1a1500 0%, transparent 55%),
+                radial-gradient(ellipse at 88% 82%, #120f00 0%, transparent 55%),
+                #080806;
+}
+.bg-mid {
+    background: radial-gradient(ellipse at 20% 30%, #120f00 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, #0e0c00 0%, transparent 50%),
+                #09090a;
+}
+.bg-slate {
+    background: radial-gradient(ellipse at 15% 80%, #0f1a1a 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 20%, #0e0c00 0%, transparent 55%),
+                #07090a;
+}
+
+/* Subtle grid overlay */
+.screenshot::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,184,0,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,184,0,0.018) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+}
+
+/* Glow orbs */
+.orb {
+    position: absolute; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,184,0,0.18) 0%, transparent 70%);
+    filter: blur(40px); pointer-events: none; z-index: 0;
+}
+.orb-blue {
+    background: radial-gradient(circle, rgba(0,122,255,0.1) 0%, transparent 70%);
+}
+.orb-green {
+    background: radial-gradient(circle, rgba(52,199,89,0.1) 0%, transparent 70%);
+}
+
+/* Text layer */
+.text-layer {
+    position: absolute; z-index: 10;
+    display: flex; flex-direction: column;
+}
+.headline {
+    font-size: 54px; font-weight: 800; letter-spacing: -2px;
+    line-height: 1.03; color: #fff;
+}
+.headline span { color: #FFB800; }
+.sub {
+    font-size: 18px; color: rgba(255,255,255,0.45); font-weight: 500;
+    margin-top: 16px; line-height: 1.5;
+}
+.tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 100px;
+    border: 1px solid rgba(255,184,0,0.35);
+    background: rgba(255,184,0,0.08);
+    color: #FFB800; font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 22px; width: fit-content;
+}
+.badge-row { display: flex; gap: 8px; margin-top: 22px; flex-wrap: wrap; }
+.badge {
+    padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.4px;
+}
+.badge-amber { background: rgba(255,184,0,0.12); border: 1px solid rgba(255,184,0,0.3); color: #FFB800; }
+.badge-white { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.55); }
+.badge-red   { background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.25); color: #ff6b61; }
+.badge-green { background: rgba(52,199,89,0.1); border: 1px solid rgba(52,199,89,0.25); color: #34c759; }
+.badge-blue  { background: rgba(0,122,255,0.1); border: 1px solid rgba(0,122,255,0.25); color: #4b9eff; }
+
+/* Bottom bar */
+.bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    padding: 20px 60px;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.bottom-bar .brand { font-size: 12px; font-weight: 700; color: rgba(255,184,0,0.5); letter-spacing: 2.5px; }
+.bottom-bar .tagline { font-size: 13px; color: rgba(255,255,255,0.2); font-style: italic; }
+
+/* Screenshot image container */
+.app-img-wrap {
+    position: absolute; z-index: 5;
+}
+.app-img-wrap img {
+    width: 100%; height: 100%; object-fit: contain;
+    border-radius: 14px;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.1),
+        0 30px 80px rgba(0,0,0,0.7),
+        0 0 60px rgba(255,184,0,0.06);
+    display: block;
+}
+
+/* Highlight annotation / callout */
+.callout {
+    position: absolute; z-index: 20;
+    background: #FFB800; color: #000; font-size: 12px; font-weight: 800;
+    padding: 6px 14px; border-radius: 100px; letter-spacing: 0.4px;
+    box-shadow: 0 4px 20px rgba(255,184,0,0.45);
+}
+.callout::after {
+    content: '';
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: 100%; border: 6px solid transparent;
+    border-top-color: #FFB800;
+}
+.callout-up::after {
+    top: auto; bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #FFB800;
+}
+
+/* Live pill */
+.live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,59,48,0.15); border: 1px solid rgba(255,59,48,0.35);
+    color: #ff6b61; font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    padding: 5px 12px; border-radius: 100px;
+    margin-bottom: 16px; width: fit-content;
+}
+.live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #ff3b30;
+    animation: pulse-dot 1.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* Metric card (inline) */
+.metric-card {
+    background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2);
+    border-radius: 14px; padding: 16px 22px;
+    display: flex; flex-direction: column; gap: 4px;
+}
+.metric-val { font-size: 38px; font-weight: 800; color: #FFB800; line-height: 1; letter-spacing: -1px; }
+.metric-lbl { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; }
+
+/* Screenshot number */
+.ss-num {
+    position: absolute; top: 24px; right: 32px; z-index: 20;
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.18); letter-spacing: 2px;
+}
+
+/* lang elements hidden by JS */
+</style>
+</head>
+<body>
+
+<div class="controls">
+    <a href="index.html" class="lang tr" style="color:#FFB800; font-size:12px; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px;">← Ana Sayfa</a>
+    <a href="index.html" class="lang en" style="color:#FFB800; font-size:12px; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px;">← Back</a>
+    <a href="index.html" class="lang ru" style="color:#FFB800; font-size:12px; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px;">← Назад</a>
+    <a href="index.html" class="lang es" style="color:#FFB800; font-size:12px; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px;">← Volver</a>
+    <div class="sep"></div>
+    <button onclick="setLang('en')" class="active" id="btn-en">EN</button>
+    <button onclick="setLang('tr')" id="btn-tr">TR</button>
+    <button onclick="setLang('ru')" id="btn-ru">RU</button>
+    <button onclick="setLang('es')" id="btn-es">ES</button>
+    <div class="sep"></div>
+    <span style="color:#555; font-size:13px; display:flex; align-items:center; gap:8px;">
+        <img src="icon.png" style="width:20px;height:20px;border-radius:5px;"> Lumina Core LPM
+    </span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREENSHOT 1 — HERO: Real-Time Live Power
+     ═══════════════════════════════════════════════════ -->
+<div class="screenshot bg-dark">
+    <div class="orb" style="width:600px;height:600px;top:-200px;left:-120px; opacity:0.7;"></div>
+    <div class="orb" style="width:350px;height:350px;bottom:-80px;right:200px; opacity:0.4;"></div>
+    <div class="ss-num">1 / 5</div>
+
+    <!-- Text left -->
+    <div class="text-layer" style="top:110px; left:72px; max-width:470px;">
+        <div class="live-pill"><div class="live-dot"></div> LIVE</div>
+        <div class="headline lang en">Your Mac's Power,<br><span>Right Now.</span></div>
+        <div class="headline lang tr">Mac'inizin Gücü,<br><span>Anlık Olarak.</span></div>
+        <div class="headline lang ru">Мощность вашего Mac<br><span>прямо сейчас.</span></div>
+        <div class="headline lang es">El poder de tu Mac,<br><span>ahora mismo.</span></div>
+
+        <div class="sub lang en">Real-time wattage. CPU · GPU · Memory · Other.<br>Always watching. Zero battery impact.</div>
+        <div class="sub lang tr">Anlık watt ölçümü. CPU · GPU · Bellek · Diğer.<br>Her zaman aktif. Bataryana sıfır yük.</div>
+        <div class="sub lang ru">Мощность в реальном времени. CPU · GPU · Память · Другое.<br>Всегда работает. Ноль влияния на батарею.</div>
+        <div class="sub lang es">Vatios en tiempo real. CPU · GPU · Memoria · Otro.<br>Siempre activo. Cero impacto en la batería.</div>
+
+        <div class="badge-row">
+            <span class="badge badge-amber">Real-Time</span>
+            <span class="badge badge-red">LIVE</span>
+            <span class="badge badge-white">Apple Silicon</span>
+            <span class="badge badge-white">macOS 14+</span>
+        </div>
+    </div>
+
+    <!-- App screenshot right -->
+    <div class="app-img-wrap" style="width:640px; height:660px; right:52px; top:70px;">
+        <img src="screens/s01.png" class="lang en">
+        <img src="screens/s06.png" class="lang tr">
+        <img src="screens/s11.png"  class="lang ru">
+        <img src="screens/s16.png"  class="lang es">
+    </div>
+
+    <!-- Callout -->
+    <div class="callout lang en" style="right:250px; top:260px;">11.7 W · Live reading</div>
+    <div class="callout lang tr" style="right:250px; top:260px;">11.7 W · Anlık okuma</div>
+    <div class="callout lang ru" style="right:250px; top:260px;">11.7 Вт · Живое считывание</div>
+    <div class="callout lang es" style="right:250px; top:260px;">11.7 W · Lectura en vivo</div>
+
+    <div class="bottom-bar">
+        <span class="brand">A LEMORAS PROJECT</span>
+        <span class="tagline lang en">Energy intelligence for every Mac.</span>
+        <span class="tagline lang tr">Her Mac için enerji zekası.</span>
+        <span class="tagline lang ru">Энергетический интеллект для каждого Mac.</span>
+        <span class="tagline lang es">Inteligencia energética para cada Mac.</span>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCREENSHOT 2 — APP ANALYTICS
+     ═══════════════════════════════════════════════════ -->
+<div class="screenshot bg-mid">
+    <div class="orb" style="width:500px;height:500px;top:-100px;right:-80px; opacity:0.5;"></div>
+    <div class="orb orb-blue" style="width:400px;height:400px;bottom:-120px;left:100px; opacity:0.6;"></div>
+    <div class="ss-num">2 / 5</div>
+
+    <!-- Text right -->
+    <div class="text-layer" style="top:110px; right:72px; max-width:460px; text-align:right; align-items:flex-end;">
+        <div class="tag" style="margin-left:auto;">App Analytics</div>
+        <div class="headline lang en">Which App<br>Costs<br><span>the Most?</span></div>
+        <div class="headline lang tr">Hangi Uygulama<br>En Çok<br><span>Tüketiyor?</span></div>
+        <div class="headline lang ru">Какое приложение<br>тратит<br><span>больше всего?</span></div>
+        <div class="headline lang es">¿Qué app<br>consume<br><span>más energía?</span></div>
+
+        <div class="sub lang en" style="text-align:right;">Per-app power draw & estimated cost.<br>Sorted by energy. See the culprit instantly.</div>
+        <div class="sub lang tr" style="text-align:right;">Uygulama başına güç & tahmini maliyet.<br>Enerjiye göre sıralanmış. Suçluyu anında gör.</div>
+        <div class="sub lang ru" style="text-align:right;">Потребление и стоимость для каждого приложения.<br>Сортировка по энергии. Найди виновника мгновенно.</div>
+        <div class="sub lang es" style="text-align:right;">Consumo y costo estimado por app.<br>Ordenado por energía. Encuentra al culpable al instante.</div>
+
+        <div class="badge-row" style="justify-content:flex-end;">
+            <span class="badge badge-amber">Per-App Tracking</span>
+            <span class="badge badge-white">Power + Cost</span>
+            <span class="badge badge-white">Statistical Model</span>
+        </div>
+    </div>
+
+    <!-- App screenshot left -->
+    <div class="app-img-wrap" style="width:620px; height:640px; left:52px; top:80px;">
+        <img src="screens/s02.png"  class="lang en">
+        <img src="screens/s07.png"  class="lang tr">
+        <img src="screens/s12.png" class="lang ru">
+        <img src="screens/s17.png" class="lang es">
+    </div>
+
+    <!-- Callout -->
+    <div class="callout lang en" style="left:320px; top:320px;">7.92 W · Highest consumer</div>
+    <div class="callout lang tr" style="left:320px; top:320px;">7.92 W · En yüksek tüketici</div>
+    <div class="callout lang ru" style="left:320px; top:320px;">7.92 Вт · Максимальный потребитель</div>
+    <div class="callout lang es" style="left:320px; top:320px;">7.92 W · Mayor consumidor</div>
+
+    <div class="bottom-bar">
+        <span class="brand">A LEMORAS PROJECT</span>
+        <span class="tagline lang en">Energy intelligence for every Mac.</span>
+        <span class="tagline lang tr">Her Mac için enerji zekası.</span>
+        <span class="tagline lang ru">Энергетический интеллект для каждого Mac.</span>
+        <span class="tagline lang es">Inteligencia energética para cada Mac.</span>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCREENSHOT 3 — HISTORY & TREND
+     ═══════════════════════════════════════════════════ -->
+<div class="screenshot bg-dark">
+    <div class="orb" style="width:700px;height:700px;top:-250px;left:250px; opacity:0.4;"></div>
+    <div class="orb orb-blue" style="width:300px;height:300px;bottom:-80px;right:-60px; opacity:0.5;"></div>
+    <div class="ss-num">3 / 5</div>
+
+    <!-- Text left -->
+    <div class="text-layer" style="top:110px; left:72px; max-width:460px;">
+        <div class="tag">7-Day History</div>
+        <div class="headline lang en">Trends That<br>Tell the<br><span>Full Story.</span></div>
+        <div class="headline lang tr">Tüm Hikayeyi<br>Anlatan<br><span>Trendler.</span></div>
+        <div class="headline lang ru">Тренды,<br>рассказывающие<br><span>всю историю.</span></div>
+        <div class="headline lang es">Tendencias que<br>cuentan la<br><span>historia completa.</span></div>
+
+        <div class="sub lang en">Avg power, peak draw, 30-day cost estimate.<br>History kept locally. Always private.</div>
+        <div class="sub lang tr">Ort. güç, zirve, 30 günlük maliyet tahmini.<br>Geçmiş yerel saklanır. Daima gizli.</div>
+        <div class="sub lang ru">Ср. мощность, пик, оценка за 30 дней.<br>История хранится локально. Всегда приватно.</div>
+        <div class="sub lang es">Potencia media, pico, estimación 30 días.<br>Historial guardado localmente. Siempre privado.</div>
+
+        <div class="badge-row">
+            <span class="badge badge-amber">30-Day History</span>
+            <span class="badge badge-white">Cost Estimate</span>
+            <span class="badge badge-green">100% Local</span>
+        </div>
+    </div>
+
+    <!-- App screenshot right -->
+    <div class="app-img-wrap" style="width:650px; height:670px; right:44px; top:65px;">
+        <img src="screens/s03.png" class="lang en">
+        <img src="screens/s08.png" class="lang tr">
+        <img src="screens/s13.png" class="lang ru">
+        <img src="screens/s18.png" class="lang es">
+    </div>
+
+    <!-- Callout -->
+    <div class="callout lang en" style="right:180px; top:280px;">10.8 W avg · $0.93 / 30 days</div>
+    <div class="callout lang tr" style="right:180px; top:280px;">10.8 W ort. · 30 günlük maliyet</div>
+    <div class="callout lang ru" style="right:180px; top:280px;">10.8 Вт ср. · прогноз за 30 дней</div>
+    <div class="callout lang es" style="right:180px; top:280px;">10.8 W prom. · estimación 30 días</div>
+
+    <div class="bottom-bar">
+        <span class="brand">A LEMORAS PROJECT</span>
+        <span class="tagline lang en">Energy intelligence for every Mac.</span>
+        <span class="tagline lang tr">Her Mac için enerji zekası.</span>
+        <span class="tagline lang ru">Энергетический интеллект для каждого Mac.</span>
+        <span class="tagline lang es">Inteligencia energética para cada Mac.</span>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCREENSHOT 4 — HOURLY POWER PATTERN
+     ═══════════════════════════════════════════════════ -->
+<div class="screenshot bg-slate">
+    <div class="orb" style="width:500px;height:500px;bottom:-150px;left:-80px; opacity:0.55;"></div>
+    <div class="orb" style="width:400px;height:400px;top:-80px;right:-60px; opacity:0.35;"></div>
+    <div class="ss-num">4 / 5</div>
+
+    <!-- Text right -->
+    <div class="text-layer" style="top:110px; right:72px; max-width:440px; text-align:right; align-items:flex-end;">
+        <div class="tag" style="margin-left:auto;">Pattern Analysis</div>
+        <div class="headline lang en">Know Your<br><span>Peak Hours.</span></div>
+        <div class="headline lang tr">En Yoğun<br><span>Saatlerinizi Bilin.</span></div>
+        <div class="headline lang ru">Знай свои<br><span>пиковые часы.</span></div>
+        <div class="headline lang es">Conoce tus<br><span>horas pico.</span></div>
+
+        <div class="sub lang en" style="text-align:right;">Hourly power pattern across the day.<br>Spot the heaviest usage. Schedule smarter.</div>
+        <div class="sub lang tr" style="text-align:right;">Gün içi saatlik güç örüntüsü.<br>En yoğun kullanımı yakala. Akıllıca planla.</div>
+        <div class="sub lang ru" style="text-align:right;">Почасовой паттерн потребления за день.<br>Выявляй пиковые нагрузки. Планируй умнее.</div>
+        <div class="sub lang es" style="text-align:right;">Patrón de potencia por hora del día.<br>Detecta el mayor uso. Planifica mejor.</div>
+
+        <div class="badge-row" style="justify-content:flex-end;">
+            <span class="badge badge-amber">Hourly Analysis</span>
+            <span class="badge badge-red">Peak Detection</span>
+            <span class="badge badge-white">Pattern View</span>
+        </div>
+    </div>
+
+    <!-- App screenshot left -->
+    <div class="app-img-wrap" style="width:630px; height:650px; left:48px; top:75px;">
+        <img src="screens/s04.png" class="lang en">
+        <img src="screens/s09.png" class="lang tr">
+        <img src="screens/s14.png" class="lang ru">
+        <img src="screens/s19.png" class="lang es">
+    </div>
+
+    <!-- Callout -->
+    <div class="callout lang en" style="left:300px; top:350px;">03:00–04:00 · Peak hour</div>
+    <div class="callout lang tr" style="left:300px; top:350px;">03:00–04:00 · En yoğun saat</div>
+    <div class="callout lang ru" style="left:300px; top:350px;">03:00–04:00 · Пиковый час</div>
+    <div class="callout lang es" style="left:300px; top:350px;">03:00–04:00 · Hora pico</div>
+
+    <div class="bottom-bar">
+        <span class="brand">A LEMORAS PROJECT</span>
+        <span class="tagline lang en">Energy intelligence for every Mac.</span>
+        <span class="tagline lang tr">Her Mac için enerji zekası.</span>
+        <span class="tagline lang ru">Энергетический интеллект для каждого Mac.</span>
+        <span class="tagline lang es">Inteligencia energética para cada Mac.</span>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCREENSHOT 5 — COST ANALYSIS
+     ═══════════════════════════════════════════════════ -->
+<div class="screenshot bg-mid">
+    <div class="orb orb-green" style="width:600px;height:600px;top:-150px;right:-80px; opacity:0.5;"></div>
+    <div class="orb" style="width:350px;height:350px;bottom:-100px;left:80px; opacity:0.4;"></div>
+    <div class="ss-num">5 / 5</div>
+
+    <!-- Text left -->
+    <div class="text-layer" style="top:110px; left:72px; max-width:460px;">
+        <div class="tag" style="border-color:rgba(52,199,89,0.4); background:rgba(52,199,89,0.08); color:#34c759;">Cost Analysis</div>
+        <div class="headline lang en">Your Electricity<br>Bill.<br><span style="color:#34c759;">Calculated Live.</span></div>
+        <div class="headline lang tr">Elektrik<br>Faturanız.<br><span style="color:#34c759;">Canlı Hesaplanıyor.</span></div>
+        <div class="headline lang ru">Ваш счёт<br>за электричество.<br><span style="color:#34c759;">Считается вживую.</span></div>
+        <div class="headline lang es">Tu factura<br>de electricidad.<br><span style="color:#34c759;">Calculada en vivo.</span></div>
+
+        <div class="sub lang en">Set your local energy price per kWh.<br>Get hourly, daily, weekly, monthly cost — live.</div>
+        <div class="sub lang tr">Yerel enerji fiyatınızı kWh başına ayarlayın.<br>Saatlik, günlük, haftalık, aylık — canlı hesap.</div>
+        <div class="sub lang ru">Укажите местный тариф за кВт·ч.<br>Получайте стоимость за час, день, неделю, месяц — вживую.</div>
+        <div class="sub lang es">Configura tu tarifa local por kWh.<br>Costo horario, diario, semanal, mensual — en vivo.</div>
+
+        <div class="badge-row">
+            <span class="badge badge-green">Custom kWh Price</span>
+            <span class="badge badge-amber">Multi-Currency</span>
+            <span class="badge badge-white">Live Projection</span>
+        </div>
+    </div>
+
+    <!-- App screenshot right -->
+    <div class="app-img-wrap" style="width:640px; height:660px; right:44px; top:70px;">
+        <img src="screens/s05.png" class="lang en">
+        <img src="screens/s10.png" class="lang tr">
+        <img src="screens/s15.png" class="lang ru">
+        <img src="screens/s20.png" class="lang es">
+    </div>
+
+    <!-- Callout -->
+    <div class="callout lang en" style="right:200px; top:290px; background:#34c759; border:none; box-shadow:0 4px 20px rgba(52,199,89,0.35);">$0.120 / kWh · Live cost</div>
+    <div class="callout lang tr" style="right:200px; top:290px; background:#34c759; border:none; box-shadow:0 4px 20px rgba(52,199,89,0.35);">₺6.000 / kWh · Canlı maliyet</div>
+    <div class="callout lang ru" style="right:200px; top:290px; background:#34c759; border:none; box-shadow:0 4px 20px rgba(52,199,89,0.35);">Живая стоимость потребления</div>
+    <div class="callout lang es" style="right:200px; top:290px; background:#34c759; border:none; box-shadow:0 4px 20px rgba(52,199,89,0.35);">$0.120 / kWh · Costo en vivo</div>
+
+    <div class="callout::after" style="border-top-color:#34c759;"></div>
+
+    <div class="bottom-bar">
+        <span class="brand">A LEMORAS PROJECT</span>
+        <span class="tagline lang en">Energy intelligence for every Mac.</span>
+        <span class="tagline lang tr">Her Mac için enerji zekası.</span>
+        <span class="tagline lang ru">Энергетический интеллект для каждого Mac.</span>
+        <span class="tagline lang es">Inteligencia energética para cada Mac.</span>
+    </div>
+</div>
+
+
+<div style="color:#444; font-size:12px; text-align:center; padding:32px 20px; line-height:2;">
+    <p class="lang en">Energy intelligence for every Mac.</p>
+    <p class="lang tr">Her Mac için enerji zekası.</p>
+    <p class="lang ru">Энергетический интеллект для каждого Mac.</p>
+    <p class="lang es">Inteligencia energética para cada Mac.</p>
+    <br>
+    <span style="color:#FFB800; font-weight:700; letter-spacing:2px; font-size:11px;">A LEMORAS PROJECT</span>
+    <div style="margin-top:8px; font-size:11px;">Developed by Onur Yaşar</div>
+    <br>
+    <div style="margin-top:16px; display:flex; justify-content:center; gap:24px; flex-wrap:wrap;">
+        <a href="privacy.html" class="lang en" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Privacy Policy</a>
+        <a href="privacy.html" class="lang tr" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Gizlilik Politikası</a>
+        <a href="privacy.html" class="lang ru" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Политика конфиденциальности</a>
+        <a href="privacy.html" class="lang es" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Política de Privacidad</a>
+        <a href="terms.html" class="lang en" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Terms of Use</a>
+        <a href="terms.html" class="lang tr" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Kullanım Koşulları</a>
+        <a href="terms.html" class="lang ru" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Условия использования</a>
+        <a href="terms.html" class="lang es" style="color:#555; text-decoration:none; font-size:12px; font-weight:600;" onmouseover="this.style.color='#FFB800'" onmouseout="this.style.color='#555'">Términos de Uso</a>
+    </div>
+    <br>
+    <div class="lang en">&copy; 2026 Lumina Core LPM. macOS 14.0+</div>
+    <div class="lang tr">&copy; 2026 Lumina Core LPM. macOS 14.0+</div>
+    <div class="lang ru">&copy; 2026 Lumina Core LPM. macOS 14.0+</div>
+    <div class="lang es">&copy; 2026 Lumina Core LPM. macOS 14.0+</div>
+</div>
+
+<script>
+// Screenshot mapping per slide per language
+// Keys: slide index (1-based), lang
+// Values: file path
+const BASE = 'file:///Users/onur/Desktop/lumina%20core/';
+
+function setLang(lang) {
+    ['en','tr','ru','es'].forEach(l => {
+        document.querySelectorAll('.lang.' + l).forEach(el => {
+            el.style.display = (l === lang) ? '' : 'none';
+        });
+        document.getElementById('btn-' + l).classList.toggle('active', l === lang);
+    });
+}
+
+// Init
+document.querySelectorAll('.lang').forEach(el => el.style.display = 'none');
+setLang('en');
+</script>
+</body>
+</html>
