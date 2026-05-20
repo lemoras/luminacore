@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuminaCore — Live Power Monitor for Windows</title>
+<meta name="description" content="Monitor your PC's real-time power consumption. CPU, GPU and RAM wattage, electricity cost analysis, historical trends. Available on Microsoft Store.">
+<meta property="og:title" content="LuminaCore — Live Power Monitor for Windows">
+<meta property="og:description" content="Real-time CPU, GPU and memory power monitoring with electricity cost analysis for Windows 10/11.">
+<meta property="og:image" content="https://luminacore.onuryasar.org/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070F;--bg2:#0D0D1A;--card:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --amber:#FFB800;--amber2:#FF8C00;--blue:#4FC3F7;--green:#4ADE80;
+  --text:#F0F0F8;--muted:#6B6B8A;
+  --font:'Space Grotesk',sans-serif;--mono:'Space Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.aurora{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 10%, rgba(255,184,0,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 80%, rgba(79,195,247,0.05) 0%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,140,0,0.03) 0%,transparent 50%);
+}
+.grid-bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background-image:
+    linear-gradient(rgba(255,184,0,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,184,0,0.02) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;
+  background:rgba(7,7,15,0.7);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(24px);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1rem;letter-spacing:-.3px;text-decoration:none;color:var(--text);}
+.nav-logo img{width:28px;height:28px;border-radius:7px;}
+.nav-pill{font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 10px;border-radius:100px;background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.25);color:var(--amber);text-transform:uppercase;}
+.nav-right{display:flex;align-items:center;gap:6px;}
+.nav-links{display:flex;gap:6px;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:600;padding:8px 14px;border-radius:100px;transition:all .2s;}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+
+/* LANG NAV */
+.lang-nav{
+  display:flex;gap:4px;padding:4px;
+  background:rgba(13,13,26,0.8);border:1px solid var(--border);
+  backdrop-filter:blur(24px);border-radius:100px;
+}
+.lang-nav button{
+  padding:5px 12px;border:none;background:transparent;
+  color:var(--muted);font-size:11px;font-weight:600;
+  font-family:var(--font);cursor:pointer;border-radius:100px;
+  letter-spacing:.5px;transition:all .25s;
+}
+.lang-nav button.active{background:var(--amber);color:#000;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:100px;margin-bottom:28px;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);color:var(--amber);}
+.hero h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:700;letter-spacing:-2px;line-height:1.1;margin-bottom:20px;}
+.hero h1 span{background:linear-gradient(135deg,var(--amber),var(--amber2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:500px;margin:0 auto 40px;line-height:1.7;}
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:48px;}
+.btn-store-win{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#000;font-weight:700;font-size:.95rem;font-family:var(--font);padding:14px 28px;border-radius:100px;text-decoration:none;transition:all .3s;letter-spacing:.3px;}
+.btn-store-win:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(255,184,0,0.35);}
+.btn-store-win svg{width:20px;height:20px;}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-weight:600;font-size:.9rem;font-family:var(--font);padding:14px 28px;border-radius:100px;text-decoration:none;transition:all .25s;}
+.btn-secondary:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
+.platform-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;}
+.ppill{font-size:11px;font-weight:600;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted);}
+.ppill.active{background:rgba(255,184,0,0.08);border-color:rgba(255,184,0,0.2);color:var(--amber);}
+.stats{display:flex;flex-wrap:wrap;gap:0;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;max-width:560px;margin:0 auto;}
+.stat{flex:1;min-width:120px;padding:20px 24px;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat-val{font-size:1.5rem;font-weight:700;color:var(--amber);font-family:var(--mono);}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600;letter-spacing:.5px;}
+
+/* SECTIONS */
+.section{padding:80px 24px;max-width:1000px;margin:0 auto;}
+.section-tag{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:12px;}
+.section h2{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;letter-spacing:-1.5px;line-height:1.2;margin-bottom:48px;}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;transition:border-color .25s,transform .25s;}
+.feature-card:hover{border-color:rgba(255,184,0,0.25);transform:translateY(-3px);}
+.feature-icon{font-size:1.6rem;margin-bottom:14px;}
+.feature-card h3{font-size:1rem;font-weight:700;margin-bottom:8px;}
+.feature-card p{font-size:.9rem;color:var(--muted);line-height:1.6;}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.tech-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;}
+.tech-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.tech-val{font-size:1rem;font-weight:700;color:var(--text);}
+.cta{padding:80px 24px;text-align:center;}
+.cta h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-1px;margin-bottom:12px;}
+.cta p{color:var(--muted);margin-bottom:32px;font-size:1rem;}
+
+/* LANG BLOCKS */
+.lang-block{display:none;}
+.lang-block.active{display:contents;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:48px 24px 40px;text-align:center;color:var(--muted);}
+.footer-links{display:flex;justify-content:center;gap:20px;margin-bottom:16px;flex-wrap:wrap;}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:600;transition:color .2s;}
+.footer-links a:hover{color:var(--amber);}
+.footer-sig{color:var(--amber);font-weight:800;letter-spacing:2px;font-size:.85rem;margin-bottom:4px;}
+.footer-copy{font-size:.78rem;color:var(--muted);opacity:.5;margin-top:8px;}
+
+@media(max-width:600px){
+  nav{padding:12px 16px;}
+  .nav-links{display:none;}
+  .stat{padding:16px;}
+}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="grid-bg"></div>
+
+<nav>
+  <a href="../index.html" class="nav-logo">
+    <img src="../icon.png" alt="LuminaCore">
+    LuminaCore
+    <span class="nav-pill">Windows</span>
+  </a>
+  <div class="nav-right">
+    <div class="lang-nav">
+      <button onclick="setLang('en')" id="btn-en">EN</button>
+      <button onclick="setLang('tr')" id="btn-tr">TR</button>
+      <button onclick="setLang('ru')" id="btn-ru">RU</button>
+      <button onclick="setLang('es')" id="btn-es">ES</button>
+    </div>
+    <div class="nav-links">
+      <a href="privacy.html" id="nav-privacy">Privacy</a>
+      <a href="terms.html" id="nav-terms">Terms</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════ EN ═══════════════ -->
+<div class="lang-block active" id="lang-en">
+
+<section class="hero">
+  <div class="hero-badge">⚡ Windows 10 / 11 · Free</div>
+  <h1>Know Every Watt<br>Your <span>PC Consumes</span></h1>
+  <p class="hero-sub">Real-time CPU, GPU and RAM power monitoring with electricity cost analysis. Built for Windows 10 and 11.</p>
+  <div class="hero-actions">
+    <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+      Get on Microsoft Store
+    </a>
+    <a href="https://apps.microsoft.com/detail/9N7RD8THMJPN" class="btn-secondary">View in Browser</a>
+  </div>
+  <div class="platform-pills">
+    <span class="ppill active">Windows 10 / 11</span>
+    <span class="ppill active">.NET 8 · WPF</span>
+    <span class="ppill active">x64</span>
+    <span class="ppill active">Free</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">Real</div><div class="stat-lbl">Sensor Data</div></div>
+    <div class="stat"><div class="stat-val">CPU+GPU</div><div class="stat-lbl">+ RAM Power</div></div>
+    <div class="stat"><div class="stat-val">SQLite</div><div class="stat-lbl">Local History</div></div>
+    <div class="stat"><div class="stat-val">0 Data</div><div class="stat-lbl">Transmitted</div></div>
+  </div>
+</section>
+
+<div class="section">
+  <p class="section-tag">Features</p>
+  <h2>Everything you need to<br>understand your PC's power.</h2>
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3>Real Hardware Sensors</h3><p>Powered by LibreHardwareMonitor — reads actual CPU, GPU and RAM wattage directly from hardware sensors. No guesswork.</p></div>
+    <div class="feature-card"><div class="feature-icon">💰</div><h3>Electricity Cost Analysis</h3><p>Enter your electricity rate and see real-time cost per hour, day, month and year based on current power draw.</p></div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h3>Historical Trends</h3><p>Power consumption data is stored locally in SQLite. View charts and trends over time to understand usage patterns.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h3>100% Private</h3><p>Zero data collection. Zero network transmission. Everything stays on your PC — no analytics, no telemetry.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌍</div><h3>4 Languages</h3><p>Available in English, Turkish, Russian and Spanish. Interface adapts to your system language automatically.</p></div>
+    <div class="feature-card"><div class="feature-icon">🚀</div><h3>Startup &amp; Tray</h3><p>Launch with Windows, minimize to system tray. LuminaCore runs quietly in the background whenever you need it.</p></div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-tag">Tech Stack</p>
+  <h2>Built for Windows.</h2>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="tech-label">Platform</div><div class="tech-val">Windows 10 / 11</div></div>
+    <div class="tech-card"><div class="tech-label">Framework</div><div class="tech-val">.NET 8 WPF</div></div>
+    <div class="tech-card"><div class="tech-label">Sensors</div><div class="tech-val">LibreHardwareMonitor</div></div>
+    <div class="tech-card"><div class="tech-label">Database</div><div class="tech-val">SQLite · EF Core 8</div></div>
+    <div class="tech-card"><div class="tech-label">Distribution</div><div class="tech-val">Microsoft Store</div></div>
+    <div class="tech-card"><div class="tech-label">Architecture</div><div class="tech-val">x64 · Self-contained</div></div>
+  </div>
+</div>
+
+<div class="cta">
+  <h2>Free on Microsoft Store</h2>
+  <p>Download LuminaCore and start monitoring your PC's power consumption today.</p>
+  <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+    Get on Microsoft Store
+  </a>
+</div>
+
+</div><!-- /lang-en -->
+
+<!-- ═══════════════ TR ═══════════════ -->
+<div class="lang-block" id="lang-tr">
+
+<section class="hero">
+  <div class="hero-badge">⚡ Windows 10 / 11 · Ücretsiz</div>
+  <h1>PC'nizin Tükettiği<br><span>Her Watt'ı</span> Bilin</h1>
+  <p class="hero-sub">CPU, GPU ve RAM güç tüketimini gerçek zamanlı izleyin, elektrik maliyetinizi hesaplayın. Windows 10 ve 11 için tasarlandı.</p>
+  <div class="hero-actions">
+    <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+      Microsoft Store'dan İndir
+    </a>
+    <a href="https://apps.microsoft.com/detail/9N7RD8THMJPN" class="btn-secondary">Tarayıcıda Görüntüle</a>
+  </div>
+  <div class="platform-pills">
+    <span class="ppill active">Windows 10 / 11</span>
+    <span class="ppill active">.NET 8 · WPF</span>
+    <span class="ppill active">x64</span>
+    <span class="ppill active">Ücretsiz</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">Gerçek</div><div class="stat-lbl">Sensör Verisi</div></div>
+    <div class="stat"><div class="stat-val">CPU+GPU</div><div class="stat-lbl">+ RAM Gücü</div></div>
+    <div class="stat"><div class="stat-val">SQLite</div><div class="stat-lbl">Yerel Geçmiş</div></div>
+    <div class="stat"><div class="stat-val">0 Veri</div><div class="stat-lbl">İletilmez</div></div>
+  </div>
+</section>
+
+<div class="section">
+  <p class="section-tag">Özellikler</p>
+  <h2>PC'nizin gücünü anlamak için<br>ihtiyacınız olan her şey.</h2>
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3>Gerçek Donanım Sensörleri</h3><p>LibreHardwareMonitor ile CPU, GPU ve RAM watt değerlerini doğrudan donanım sensörlerinden okur. Tahmin yok, gerçek veri.</p></div>
+    <div class="feature-card"><div class="feature-icon">💰</div><h3>Elektrik Maliyeti Analizi</h3><p>Elektrik birim fiyatınızı girin, anlık güç tüketimine göre saatlik, günlük, aylık ve yıllık maliyeti görün.</p></div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h3>Geçmiş Trendler</h3><p>Güç tüketimi verileri SQLite'ta yerel olarak saklanır. Zaman içindeki trendleri ve grafikleri inceleyin.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h3>%100 Gizli</h3><p>Sıfır veri toplama. Sıfır ağ iletimi. Her şey bilgisayarınızda kalır — analitik yok, telemetri yok.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌍</div><h3>4 Dil</h3><p>İngilizce, Türkçe, Rusça ve İspanyolca. Arayüz sistem dilinize göre otomatik ayarlanır.</p></div>
+    <div class="feature-card"><div class="feature-icon">🚀</div><h3>Başlangıç ve Tepsi</h3><p>Windows ile başlat, sistem tepsisine küçült. LuminaCore arka planda sessizce çalışır.</p></div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-tag">Teknoloji</p>
+  <h2>Windows için inşa edildi.</h2>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="tech-label">Platform</div><div class="tech-val">Windows 10 / 11</div></div>
+    <div class="tech-card"><div class="tech-label">Çerçeve</div><div class="tech-val">.NET 8 WPF</div></div>
+    <div class="tech-card"><div class="tech-label">Sensörler</div><div class="tech-val">LibreHardwareMonitor</div></div>
+    <div class="tech-card"><div class="tech-label">Veritabanı</div><div class="tech-val">SQLite · EF Core 8</div></div>
+    <div class="tech-card"><div class="tech-label">Dağıtım</div><div class="tech-val">Microsoft Store</div></div>
+    <div class="tech-card"><div class="tech-label">Mimari</div><div class="tech-val">x64 · Self-contained</div></div>
+  </div>
+</div>
+
+<div class="cta">
+  <h2>Microsoft Store'da Ücretsiz</h2>
+  <p>LuminaCore'u indirin ve PC'nizin güç tüketimini izlemeye hemen başlayın.</p>
+  <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+    Microsoft Store'dan İndir
+  </a>
+</div>
+
+</div><!-- /lang-tr -->
+
+<!-- ═══════════════ RU ═══════════════ -->
+<div class="lang-block" id="lang-ru">
+
+<section class="hero">
+  <div class="hero-badge">⚡ Windows 10 / 11 · Бесплатно</div>
+  <h1>Знайте каждый ватт,<br><span>который потребляет</span> ваш ПК</h1>
+  <p class="hero-sub">Мониторинг энергопотребления CPU, GPU и RAM в реальном времени с анализом затрат на электроэнергию. Создано для Windows 10 и 11.</p>
+  <div class="hero-actions">
+    <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+      Получить в Microsoft Store
+    </a>
+    <a href="https://apps.microsoft.com/detail/9N7RD8THMJPN" class="btn-secondary">Открыть в браузере</a>
+  </div>
+  <div class="platform-pills">
+    <span class="ppill active">Windows 10 / 11</span>
+    <span class="ppill active">.NET 8 · WPF</span>
+    <span class="ppill active">x64</span>
+    <span class="ppill active">Бесплатно</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">Реальные</div><div class="stat-lbl">Данные датчиков</div></div>
+    <div class="stat"><div class="stat-val">CPU+GPU</div><div class="stat-lbl">+ RAM мощность</div></div>
+    <div class="stat"><div class="stat-val">SQLite</div><div class="stat-lbl">Локальная история</div></div>
+    <div class="stat"><div class="stat-val">0 данных</div><div class="stat-lbl">Передаётся</div></div>
+  </div>
+</section>
+
+<div class="section">
+  <p class="section-tag">Возможности</p>
+  <h2>Всё необходимое для понимания<br>энергопотребления вашего ПК.</h2>
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3>Реальные датчики оборудования</h3><p>На основе LibreHardwareMonitor — считывает фактическое потребление CPU, GPU и RAM напрямую с аппаратных датчиков. Без догадок.</p></div>
+    <div class="feature-card"><div class="feature-icon">💰</div><h3>Анализ стоимости электроэнергии</h3><p>Введите тариф и смотрите стоимость в час, день, месяц и год на основе текущего потребления.</p></div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h3>История и тренды</h3><p>Данные хранятся локально в SQLite. Просматривайте графики и тренды потребления за любой период.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h3>100% конфиденциально</h3><p>Нулевой сбор данных. Нулевая передача. Всё остаётся на вашем ПК — никакой аналитики и телеметрии.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌍</div><h3>4 языка</h3><p>Доступно на английском, турецком, русском и испанском. Интерфейс автоматически подстраивается под язык системы.</p></div>
+    <div class="feature-card"><div class="feature-icon">🚀</div><h3>Автозапуск и трей</h3><p>Запускается вместе с Windows, сворачивается в системный трей. LuminaCore тихо работает в фоне.</p></div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-tag">Технологии</p>
+  <h2>Создано для Windows.</h2>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="tech-label">Платформа</div><div class="tech-val">Windows 10 / 11</div></div>
+    <div class="tech-card"><div class="tech-label">Фреймворк</div><div class="tech-val">.NET 8 WPF</div></div>
+    <div class="tech-card"><div class="tech-label">Датчики</div><div class="tech-val">LibreHardwareMonitor</div></div>
+    <div class="tech-card"><div class="tech-label">База данных</div><div class="tech-val">SQLite · EF Core 8</div></div>
+    <div class="tech-card"><div class="tech-label">Дистрибуция</div><div class="tech-val">Microsoft Store</div></div>
+    <div class="tech-card"><div class="tech-label">Архитектура</div><div class="tech-val">x64 · Self-contained</div></div>
+  </div>
+</div>
+
+<div class="cta">
+  <h2>Бесплатно в Microsoft Store</h2>
+  <p>Скачайте LuminaCore и начните мониторинг энергопотребления вашего ПК прямо сейчас.</p>
+  <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+    Получить в Microsoft Store
+  </a>
+</div>
+
+</div><!-- /lang-ru -->
+
+<!-- ═══════════════ ES ═══════════════ -->
+<div class="lang-block" id="lang-es">
+
+<section class="hero">
+  <div class="hero-badge">⚡ Windows 10 / 11 · Gratis</div>
+  <h1>Conoce cada vatio que<br><span>consume tu PC</span></h1>
+  <p class="hero-sub">Monitoreo en tiempo real del consumo de CPU, GPU y RAM con análisis de costos eléctricos. Creado para Windows 10 y 11.</p>
+  <div class="hero-actions">
+    <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+      Obtener en Microsoft Store
+    </a>
+    <a href="https://apps.microsoft.com/detail/9N7RD8THMJPN" class="btn-secondary">Ver en navegador</a>
+  </div>
+  <div class="platform-pills">
+    <span class="ppill active">Windows 10 / 11</span>
+    <span class="ppill active">.NET 8 · WPF</span>
+    <span class="ppill active">x64</span>
+    <span class="ppill active">Gratis</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">Real</div><div class="stat-lbl">Datos de sensores</div></div>
+    <div class="stat"><div class="stat-val">CPU+GPU</div><div class="stat-lbl">+ Potencia RAM</div></div>
+    <div class="stat"><div class="stat-val">SQLite</div><div class="stat-lbl">Historial local</div></div>
+    <div class="stat"><div class="stat-val">0 datos</div><div class="stat-lbl">Transmitidos</div></div>
+  </div>
+</section>
+
+<div class="section">
+  <p class="section-tag">Características</p>
+  <h2>Todo lo que necesitas para<br>entender el consumo de tu PC.</h2>
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3>Sensores de hardware reales</h3><p>Con LibreHardwareMonitor — lee el consumo real de CPU, GPU y RAM directamente de los sensores de hardware. Sin estimaciones.</p></div>
+    <div class="feature-card"><div class="feature-icon">💰</div><h3>Análisis de costo eléctrico</h3><p>Ingresa tu tarifa eléctrica y ve el costo en tiempo real por hora, día, mes y año según el consumo actual.</p></div>
+    <div class="feature-card"><div class="feature-icon">📊</div><h3>Tendencias históricas</h3><p>Los datos se almacenan localmente en SQLite. Visualiza gráficos y tendencias de consumo a lo largo del tiempo.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h3>100% Privado</h3><p>Cero recopilación de datos. Cero transmisión de red. Todo permanece en tu PC — sin analytics, sin telemetría.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌍</div><h3>4 idiomas</h3><p>Disponible en inglés, turco, ruso y español. La interfaz se adapta automáticamente al idioma del sistema.</p></div>
+    <div class="feature-card"><div class="feature-icon">🚀</div><h3>Inicio y bandeja</h3><p>Inicia con Windows, minimiza a la bandeja del sistema. LuminaCore funciona silenciosamente en segundo plano.</p></div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="section-tag">Tecnología</p>
+  <h2>Construido para Windows.</h2>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="tech-label">Plataforma</div><div class="tech-val">Windows 10 / 11</div></div>
+    <div class="tech-card"><div class="tech-label">Framework</div><div class="tech-val">.NET 8 WPF</div></div>
+    <div class="tech-card"><div class="tech-label">Sensores</div><div class="tech-val">LibreHardwareMonitor</div></div>
+    <div class="tech-card"><div class="tech-label">Base de datos</div><div class="tech-val">SQLite · EF Core 8</div></div>
+    <div class="tech-card"><div class="tech-label">Distribución</div><div class="tech-val">Microsoft Store</div></div>
+    <div class="tech-card"><div class="tech-label">Arquitectura</div><div class="tech-val">x64 · Self-contained</div></div>
+  </div>
+</div>
+
+<div class="cta">
+  <h2>Gratis en Microsoft Store</h2>
+  <p>Descarga LuminaCore y comienza a monitorear el consumo de energía de tu PC hoy mismo.</p>
+  <a href="ms-windows-store://pdp/?productid=9N7RD8THMJPN" class="btn-store-win">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+    Obtener en Microsoft Store
+  </a>
+</div>
+
+</div><!-- /lang-es -->
+
+<footer>
+  <div class="footer-links">
+    <a href="../index.html" id="footer-mac">macOS Version</a>
+    <a href="privacy.html" id="footer-privacy">Privacy Policy</a>
+    <a href="terms.html" id="footer-terms">Terms of Use</a>
+    <a href="https://buymeacoffee.com/onuryasar">☕ Buy Me a Coffee</a>
+    <a href="mailto:contact@onuryasar.org">contact@onuryasar.org</a>
+  </div>
+  <div class="footer-sig">A LEMORAS PROJECT</div>
+  <div style="font-size:.8rem;color:var(--muted);">Developed by Onur Yasar</div>
+  <p class="footer-copy">© 2026 LuminaCore · Onur Yasar · lemoras</p>
+</footer>
+
+<script>
+const i18n = {
+  'nav-privacy': {en:'Privacy',tr:'Gizlilik',ru:'Конфиденциальность',es:'Privacidad'},
+  'nav-terms':   {en:'Terms',  tr:'Koşullar',ru:'Условия',           es:'Términos'},
+  'footer-mac':  {en:'macOS Version',tr:'macOS Sürümü',ru:'Версия для macOS',es:'Versión macOS'},
+  'footer-privacy':{en:'Privacy Policy',tr:'Gizlilik Politikası',ru:'Конфиденциальность',es:'Privacidad'},
+  'footer-terms':  {en:'Terms of Use',tr:'Kullanım Koşulları',ru:'Условия использования',es:'Términos de uso'},
+};
+
+function setLang(l) {
+  ['en','tr','ru','es'].forEach(lng => {
+    const block = document.getElementById('lang-' + lng);
+    if (block) block.classList.toggle('active', lng === l);
+    const btn = document.getElementById('btn-' + lng);
+    if (btn) btn.classList.toggle('active', lng === l);
+  });
+  Object.keys(i18n).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = i18n[id][l] || i18n[id].en;
+  });
+  localStorage.setItem('lc-lang', l);
+}
+
+const saved = localStorage.getItem('lc-lang');
+const browser = (navigator.language || 'en').toLowerCase().substring(0, 2);
+const lang = saved || (['en','tr','ru','es'].includes(browser) ? browser : 'en');
+setLang(lang);
+</script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Use · LuminaCore for Windows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070F;--card:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --amber:#FFB800;--blue:#4FC3F7;--green:#4ADE80;
+  --text:#F0F0F8;--muted:#6B6B8A;
+  --font:'Space Grotesk',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+.aurora{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background:
+    radial-gradient(ellipse 70% 50% at 90% 5%, rgba(255,184,0,0.05) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 10% 90%, rgba(79,195,247,0.04) 0%,transparent 60%);
+}
+.grid-bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background-image:
+    linear-gradient(rgba(255,184,0,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,184,0,0.02) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+.lang-nav{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  display:flex;gap:4px;padding:5px;
+  background:rgba(13,13,26,0.8);border:1px solid var(--border);
+  backdrop-filter:blur(24px);border-radius:100px;z-index:1000;
+}
+.lang-nav button{
+  padding:7px 16px;border:none;background:transparent;
+  color:var(--muted);font-size:12px;font-weight:600;
+  font-family:var(--font);cursor:pointer;border-radius:100px;
+  letter-spacing:.5px;transition:all .25s;
+}
+.lang-nav button.active{background:var(--amber);color:#000;}
+.page{max-width:760px;margin:0 auto;padding:100px 24px 80px;}
+.back{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--amber);text-decoration:none;font-weight:600;
+  font-size:.9rem;margin-bottom:40px;transition:opacity .2s;
+}
+.back:hover{opacity:.7;}
+.page-header{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:24px;padding:36px;margin-bottom:24px;
+}
+.page-header-top{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.app-icon-sm{
+  width:52px;height:52px;border-radius:13px;overflow:hidden;
+  border:1px solid rgba(255,184,0,0.2);flex-shrink:0;
+}
+.app-icon-sm img{width:100%;height:100%;display:block;}
+.page-title-wrap h1{font-size:1.7rem;font-weight:700;letter-spacing:-1px;}
+.page-title-wrap p{font-size:.85rem;color:var(--muted);margin-top:3px;}
+.info-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);
+  color:var(--amber);font-size:.85rem;font-weight:600;
+  padding:10px 18px;border-radius:12px;
+}
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:32px;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent);
+  opacity:.3;
+}
+.lang-block{display:none;}
+.lang-block.active{display:block;}
+.lang-label{
+  display:inline-block;font-size:10px;font-weight:700;
+  letter-spacing:2px;color:var(--amber);text-transform:uppercase;
+  margin-bottom:20px;padding:4px 10px;
+  background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.15);border-radius:6px;
+}
+h2{font-size:1.2rem;font-weight:700;margin-bottom:12px;letter-spacing:-.5px;}
+h3{font-size:.95rem;font-weight:600;color:var(--amber);margin:22px 0 8px;}
+p{color:var(--muted);margin-bottom:12px;font-size:.95rem;}
+p:last-child{margin-bottom:0;}
+strong{color:var(--text);font-weight:600;}
+em{font-style:italic;color:var(--text);}
+a.mail{color:var(--amber);text-decoration:none;font-weight:700;border-bottom:1px dashed rgba(255,184,0,.4);}
+a.mail:hover{border-bottom-color:var(--amber);}
+hr{border:none;border-top:1px solid var(--border);margin:24px 0;}
+footer{
+  border-top:1px solid var(--border);padding:60px 24px 50px;text-align:center;color:var(--muted);
+}
+.btn-coffee{
+  display:inline-flex;align-items:center;gap:9px;
+  width:fit-content;
+  background:#FFDD00;color:#000;font-weight:700;font-size:.9rem;
+  font-family:var(--font);padding:12px 26px;border-radius:100px;
+  text-decoration:none;transition:all .25s;margin:0 auto 28px;
+  letter-spacing:.3px;
+}
+.btn-coffee:hover{transform:translateY(-4px);box-shadow:0 15px 35px rgba(255,221,0,0.35);}
+.footer-signature{
+  color:var(--amber);font-weight:800;margin:16px 0 5px;
+  display:block;letter-spacing:2px;font-size:.9rem;
+}
+.footer-dev{font-size:.8rem;color:var(--muted);margin-bottom:24px;}
+.footer-links{display:flex;justify-content:center;gap:20px;margin-bottom:12px;flex-wrap:wrap;}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:.85rem;transition:color .2s;font-weight:600;}
+.footer-links a:hover{color:var(--amber);}
+.footer-copy{font-size:.8rem;color:var(--muted);opacity:.5;}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="grid-bg"></div>
+
+<nav class="lang-nav">
+  <button onclick="setLang('en')" id="btn-en">EN</button>
+  <button onclick="setLang('tr')" id="btn-tr">TR</button>
+  <button onclick="setLang('ru')" id="btn-ru">RU</button>
+  <button onclick="setLang('es')" id="btn-es">ES</button>
+</nav>
+
+<div class="page">
+  <a href="index.html" class="back">← <span class="lbl-back"></span></a>
+
+  <!-- EN -->
+  <div class="lang-block active" id="lang-en">
+    <div class="page-header">
+      <div class="page-header-top">
+        <div class="app-icon-sm"><img src="../icon.png" alt="LuminaCore"></div>
+        <div class="page-title-wrap">
+          <h1>Terms of Use</h1>
+          <p>Last updated: May 20, 2026 · Windows Edition</p>
+        </div>
+      </div>
+      <div class="info-badge">⚡ LuminaCore · Microsoft Store</div>
+    </div>
+    <div class="card">
+      <span class="lang-label">EN · English</span>
+
+      <h2>Using LuminaCore</h2>
+      <p>By downloading or using LuminaCore, you agree to these terms. The app is distributed through the Microsoft Store and is also subject to Microsoft's standard terms of use.</p>
+
+      <h3>What the App Does</h3>
+      <p>LuminaCore monitors your PC's real-time power consumption using <strong>LibreHardwareMonitor</strong>, which reads actual hardware sensor data (CPU, GPU, RAM). It calculates electricity cost projections using a unit price you configure. All processing happens locally on your PC.</p>
+
+      <h3>About Accuracy</h3>
+      <p>Power values are based on hardware sensor readings where available, combined with <em>statistical estimation</em> for components without direct sensor support. Real consumption may vary depending on your hardware configuration, workload, and environment. Use the figures as a practical guide.</p>
+
+      <h3>System Requirements</h3>
+      <p>LuminaCore requires <strong>Windows 10 or Windows 11</strong> (x64) and .NET 8 runtime (bundled with the app). Administrator permissions may be required for hardware sensor access.</p>
+
+      <h3>Your Responsibilities</h3>
+      <p>Use the app for personal, non-commercial purposes. Don't attempt to reverse-engineer, modify, or redistribute the app.</p>
+
+      <h3>Updates</h3>
+      <p>We may update the app and these terms over time. Continued use means you accept any changes.</p>
+
+      <h3>Disclaimer</h3>
+      <p>The app is provided "as is" without warranties of any kind. We are not responsible for any decisions made based on the power or cost estimates displayed.</p>
+
+      <hr>
+      <h3>Contact</h3>
+      <p><a href="mailto:contact@onuryasar.org" class="mail">contact@onuryasar.org</a></p>
+    </div>
+  </div>
+
+  <!-- TR -->
+  <div class="lang-block" id="lang-tr">
+    <div class="page-header">
+      <div class="page-header-top">
+        <div class="app-icon-sm"><img src="../icon.png" alt="LuminaCore"></div>
+        <div class="page-title-wrap">
+          <h1>Kullanım Koşulları</h1>
+          <p>Son güncelleme: 20 Mayıs 2026 · Windows Sürümü</p>
+        </div>
+      </div>
+      <div class="info-badge">⚡ LuminaCore · Microsoft Store</div>
+    </div>
+    <div class="card">
+      <span class="lang-label">TR · Türkçe</span>
+
+      <h2>LuminaCore'u Kullanmak</h2>
+      <p>LuminaCore'u indirerek veya kullanarak bu koşulları kabul etmiş olursunuz. Uygulama Microsoft Store üzerinden dağıtılmakta olup Microsoft'un standart kullanım koşullarına da tabidir.</p>
+
+      <h3>Uygulama Ne Yapar?</h3>
+      <p>LuminaCore, gerçek donanım sensörü verilerini okuyan <strong>LibreHardwareMonitor</strong> kullanarak bilgisayarınızın gerçek zamanlı güç tüketimini izler (CPU, GPU, RAM). Elektrik maliyet projeksiyonlarını yapılandırdığınız birim fiyat üzerinden hesaplar. Tüm işlemler bilgisayarınızda yerel olarak gerçekleşir.</p>
+
+      <h3>Doğruluk Hakkında</h3>
+      <p>Güç değerleri, mevcut olduğunda donanım sensörü okumalarına, doğrudan sensör desteği olmayan bileşenler için ise <em>istatistiksel tahmine</em> dayanmaktadır. Gerçek tüketim, donanım yapılandırmanıza, iş yüküne ve ortama göre değişebilir. Değerleri pratik bir rehber olarak kullanın.</p>
+
+      <h3>Sistem Gereksinimleri</h3>
+      <p>LuminaCore, <strong>Windows 10 veya Windows 11</strong> (x64) ve .NET 8 çalışma zamanı (uygulama ile birlikte gelir) gerektirir. Donanım sensörü erişimi için yönetici izinleri gerekebilir.</p>
+
+      <h3>Sorumluluklarınız</h3>
+      <p>Uygulamayı kişisel, ticari olmayan amaçlarla kullanın. Uygulamayı tersine mühendislik yapmaya, değiştirmeye veya yeniden dağıtmaya çalışmayın.</p>
+
+      <h3>Güncellemeler</h3>
+      <p>Uygulamayı ve bu koşulları zaman içinde güncelleyebiliriz. Kullanmaya devam etmek, değişiklikleri kabul ettiğiniz anlamına gelir.</p>
+
+      <h3>Sorumluluk Reddi</h3>
+      <p>Uygulama, herhangi bir garanti verilmeksizin "olduğu gibi" sunulmaktadır. Görüntülenen güç veya maliyet tahminlerine dayanılarak alınan kararlardan sorumlu değiliz.</p>
+
+      <hr>
+      <h3>İletişim</h3>
+      <p><a href="mailto:contact@onuryasar.org" class="mail">contact@onuryasar.org</a></p>
+    </div>
+  </div>
+
+  <!-- RU -->
+  <div class="lang-block" id="lang-ru">
+    <div class="page-header">
+      <div class="page-header-top">
+        <div class="app-icon-sm"><img src="../icon.png" alt="LuminaCore"></div>
+        <div class="page-title-wrap">
+          <h1>Условия использования</h1>
+          <p>Последнее обновление: 20 мая 2026 · Windows Edition</p>
+        </div>
+      </div>
+      <div class="info-badge">⚡ LuminaCore · Microsoft Store</div>
+    </div>
+    <div class="card">
+      <span class="lang-label">RU · Русский</span>
+
+      <h2>Использование LuminaCore</h2>
+      <p>Загружая или используя LuminaCore, вы соглашаетесь с настоящими условиями. Приложение распространяется через Microsoft Store и также регулируется стандартными условиями использования Microsoft.</p>
+
+      <h3>Что делает приложение</h3>
+      <p>LuminaCore отслеживает потребление энергии вашего ПК в реальном времени с помощью <strong>LibreHardwareMonitor</strong>, считывающего данные аппаратных датчиков (CPU, GPU, RAM). Расчёт стоимости электроэнергии производится по указанному вами тарифу. Вся обработка происходит локально на вашем ПК.</p>
+
+      <h3>О точности</h3>
+      <p>Значения мощности основаны на показаниях аппаратных датчиков там, где они доступны, и на <em>статистической оценке</em> для компонентов без прямой поддержки датчиков. Реальное потребление может отличаться в зависимости от конфигурации оборудования и условий эксплуатации.</p>
+
+      <h3>Системные требования</h3>
+      <p>LuminaCore требует <strong>Windows 10 или Windows 11</strong> (x64) и среду выполнения .NET 8 (включена в приложение). Для доступа к аппаратным датчикам могут потребоваться права администратора.</p>
+
+      <h3>Ваши обязанности</h3>
+      <p>Используйте приложение в личных некоммерческих целях. Не пытайтесь выполнять реверс-инжиниринг, изменять или распространять приложение.</p>
+
+      <h3>Обновления</h3>
+      <p>Мы можем обновлять приложение и эти условия. Продолжение использования означает согласие с изменениями.</p>
+
+      <h3>Отказ от ответственности</h3>
+      <p>Приложение предоставляется «как есть» без каких-либо гарантий. Мы не несём ответственности за решения, принятые на основе отображаемых оценок мощности или стоимости.</p>
+
+      <hr>
+      <h3>Контакт</h3>
+      <p><a href="mailto:contact@onuryasar.org" class="mail">contact@onuryasar.org</a></p>
+    </div>
+  </div>
+
+  <!-- ES -->
+  <div class="lang-block" id="lang-es">
+    <div class="page-header">
+      <div class="page-header-top">
+        <div class="app-icon-sm"><img src="../icon.png" alt="LuminaCore"></div>
+        <div class="page-title-wrap">
+          <h1>Términos de Uso</h1>
+          <p>Última actualización: 20 de mayo de 2026 · Windows Edition</p>
+        </div>
+      </div>
+      <div class="info-badge">⚡ LuminaCore · Microsoft Store</div>
+    </div>
+    <div class="card">
+      <span class="lang-label">ES · Español</span>
+
+      <h2>Usar LuminaCore</h2>
+      <p>Al descargar o usar LuminaCore, aceptas estos términos. La app se distribuye a través de Microsoft Store y también está sujeta a los términos estándar de uso de Microsoft.</p>
+
+      <h3>Qué hace la app</h3>
+      <p>LuminaCore monitorea el consumo de energía de tu PC en tiempo real usando <strong>LibreHardwareMonitor</strong>, que lee datos reales de sensores de hardware (CPU, GPU, RAM). Calcula proyecciones de costo eléctrico según la tarifa que configures. Todo el procesamiento ocurre localmente en tu PC.</p>
+
+      <h3>Sobre la precisión</h3>
+      <p>Los valores de potencia se basan en lecturas de sensores de hardware donde estén disponibles, combinadas con <em>estimación estadística</em> para componentes sin soporte de sensor directo. El consumo real puede variar según la configuración de hardware, la carga de trabajo y el entorno.</p>
+
+      <h3>Requisitos del sistema</h3>
+      <p>LuminaCore requiere <strong>Windows 10 o Windows 11</strong> (x64) y el runtime de .NET 8 (incluido con la app). Pueden requerirse permisos de administrador para el acceso a sensores de hardware.</p>
+
+      <h3>Tus responsabilidades</h3>
+      <p>Usa la app para fines personales no comerciales. No intentes realizar ingeniería inversa, modificar ni redistribuir la app.</p>
+
+      <h3>Actualizaciones</h3>
+      <p>Podemos actualizar la app y estos términos con el tiempo. El uso continuado implica aceptación de los cambios.</p>
+
+      <h3>Descargo de responsabilidad</h3>
+      <p>La app se proporciona "tal cual" sin garantías de ningún tipo. No somos responsables de las decisiones tomadas en base a las estimaciones de potencia o costo mostradas.</p>
+
+      <hr>
+      <h3>Contacto</h3>
+      <p><a href="mailto:contact@onuryasar.org" class="mail">contact@onuryasar.org</a></p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://buymeacoffee.com/onuryasar" class="btn-coffee lbl-coffee">☕ Buy Me a Coffee</a>
+  <span class="footer-signature lbl-signature">A LEMORAS PROJECT</span>
+  <div class="footer-dev lbl-dev">Developed by Onur Yasar</div>
+  <div class="footer-links">
+    <a href="index.html">⚡ LuminaCore for Windows</a>
+    <a href="privacy.html" class="lbl-privacy">Privacy Policy</a>
+    <a href="mailto:contact@onuryasar.org">contact@onuryasar.org</a>
+  </div>
+  <p class="footer-copy">© 2026 LuminaCore · Onur Yasar · lemoras</p>
+</footer>
+
+<script>
+const backLabels={en:'Back to LuminaCore',tr:'LuminaCore\'a Dön',ru:'Назад к LuminaCore',es:'Volver a LuminaCore'};
+const privacyLabels={en:'Privacy Policy',tr:'Gizlilik Politikası',ru:'Конфиденциальность',es:'Privacidad'};
+const coffeeLabels={en:'☕ Buy Me a Coffee',tr:'☕ Bana Kahve Ismarla',ru:'☕ Угостить кофе',es:'☕ Invítame un café'};
+const signatureLabels={en:'A LEMORAS PROJECT',tr:'A LEMORAS PROJECT',ru:'ПРОЕКТ LEMORAS',es:'UN PROYECTO LEMORAS'};
+const devLabels={en:'Developed by Onur Yasar',tr:'Onur Yaşar tarafından geliştirildi',ru:'Разработано Onur Yasar',es:'Desarrollado por Onur Yaşar'};
+function setLang(l){
+  ['en','tr','ru','es'].forEach(lng=>{
+    const b=document.getElementById('lang-'+lng);
+    if(b)b.classList.toggle('active',lng===l);
+    document.getElementById('btn-'+lng).classList.toggle('active',lng===l);
+  });
+  document.querySelector('.lbl-back').textContent=backLabels[l]||backLabels.en;
+  document.querySelector('.lbl-privacy').textContent=privacyLabels[l]||privacyLabels.en;
+  document.querySelector('.lbl-coffee').textContent=coffeeLabels[l]||coffeeLabels.en;
+  document.querySelector('.lbl-signature').textContent=signatureLabels[l]||signatureLabels.en;
+  document.querySelector('.lbl-dev').textContent=devLabels[l]||devLabels.en;
+}
+const bl=(navigator.language||'en').toLowerCase().substring(0,2);
+setLang(['en','tr','ru','es'].includes(bl)?bl:'en');
+</script>
+</body>
+</html>
