@@ -1,0 +1,24 @@
+# LuminaCore — Apache guvenlik basliklari (origin)
+# Not: Cloudflare Worker on tarafta ise, asil gecerli olan Worker'in setledigi
+# basliklardir (bkz. cloudflare-worker.example.js). Bu dosya origin Apache icindir.
+
+<IfModule mod_headers.c>
+  # CSP: scriptler icin 'unsafe-inline' YOK (tum JS harici js/*.js).
+  # style 'unsafe-inline' gerekli (satir-ici <style> ve style="" var).
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self'; connect-src 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; report-uri https://luminacore.onuryasar.org/csp-report; report-to csp-endpoint"
+  Header always set Reporting-Endpoints "csp-endpoint=\"https://luminacore.onuryasar.org/csp-report\""
+
+  Header always set X-Frame-Options "DENY"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+  Header always set X-Permitted-Cross-Domain-Policies "none"
+</IfModule>
+
+# Dizin listelemesini kapat
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>

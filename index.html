@@ -56,26 +56,28 @@ body{
 
 /* ── LANG NAV ── */
 .lang-nav{
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  display:flex;gap:4px;padding:5px;
+  position:fixed;top:16px;right:16px;
+  display:flex;gap:4px;padding:4px;
   background:rgba(13,13,26,0.8);
   border:1px solid var(--border);
   backdrop-filter:blur(24px);
   border-radius:100px;z-index:1000;
 }
 .lang-nav button{
-  padding:7px 16px;border:none;background:transparent;
-  color:var(--muted);font-size:12px;font-weight:600;
+  padding:5px 10px;border:none;background:transparent;
+  color:var(--muted);font-size:11px;font-weight:600;
   font-family:var(--font);cursor:pointer;border-radius:100px;
   letter-spacing:.5px;transition:all .25s;
 }
 .lang-nav button.active{background:var(--amber);color:#000;}
 .lang-nav button:not(.active):hover{color:var(--text);}
+.ss-link-card{transition:all .25s;}
+.ss-link-card:hover{border-color:rgba(255,184,0,0.5)!important;background:rgba(255,184,0,0.1)!important;transform:translateY(-3px);}
 
 .container{max-width:1080px;margin:0 auto;padding:0 24px;}
 
 /* ── HERO ── */
-header{padding:130px 0 80px;text-align:center;position:relative;}
+header{padding:clamp(64px,8vh,96px) 0 72px;text-align:center;position:relative;}
 
 .app-icon-wrap{
   display:inline-block;margin-bottom:44px;position:relative;
@@ -424,10 +426,10 @@ footer{
 
 <!-- LANG NAV -->
 <nav class="lang-nav">
-  <button onclick="setLang('en')" id="btn-en">EN</button>
-  <button onclick="setLang('tr')" id="btn-tr">TR</button>
-  <button onclick="setLang('ru')" id="btn-ru">RU</button>
-  <button onclick="setLang('es')" id="btn-es">ES</button>
+  <button id="btn-en">EN</button>
+  <button id="btn-tr">TR</button>
+  <button id="btn-ru">RU</button>
+  <button id="btn-es">ES</button>
 </nav>
 
 <!-- HERO -->
@@ -810,15 +812,14 @@ footer{
     </p>
 
     <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
-      <a href="macos.html" style="
+      <a href="macos.html" class="ss-link-card" style="
         display:flex; flex-direction:column; align-items:center; gap:10px;
         padding:28px 40px; border-radius:20px;
         background:rgba(255,184,0,0.05);
         border:1px solid rgba(255,184,0,0.2);
         text-decoration:none; transition:all .25s;
         min-width:200px;
-      " onmouseover="this.style.borderColor='rgba(255,184,0,0.5)'; this.style.background='rgba(255,184,0,0.1)'; this.style.transform='translateY(-3px)'"
-         onmouseout="this.style.borderColor='rgba(255,184,0,0.2)'; this.style.background='rgba(255,184,0,0.05)'; this.style.transform='translateY(0)'">
+      ">
         <span style="font-size:32px;">🖥</span>
         <span style="font-weight:700; color:var(--amber); font-size:1rem; letter-spacing:.5px;">macOS</span>
         <span data-lang="en"  style="font-size:.8rem; color:var(--muted);" class="active">Mac Screenshots</span>
@@ -866,126 +867,6 @@ footer{
   </div>
 </footer>
 
-<script>
-// ── Language switcher ──
-function setLang(l){
-  ['en','tr','ru','es'].forEach(lng=>{
-    document.querySelectorAll('[data-lang="'+lng+'"]').forEach(el=>{
-      const isBlock = getComputedStyle(el).display==='none'||el.dataset.langInline===undefined;
-      el.classList.toggle('active', lng===l);
-      if(lng===l){
-        el.style.display = el.dataset.langInline!==undefined ? 'inline' : '';
-      } else {
-        el.style.display = 'none';
-      }
-    });
-    document.getElementById('btn-'+lng).classList.toggle('active',lng===l);
-  });
-  // fix breakdown labels
-  document.querySelectorAll('.bd-label[data-lang]').forEach(el=>{
-    el.style.display = el.dataset.lang===l ? 'block' : 'none';
-  });
-  // fix stat labels
-  document.querySelectorAll('.stat-lbl[data-lang]').forEach(el=>{
-    el.style.display = el.dataset.lang===l ? 'block' : 'none';
-  });
-  // fix section labels
-  document.querySelectorAll('.section-label[data-lang],.platform-pill [data-lang]').forEach(el=>{
-    el.style.display = el.dataset.lang===l ? 'block' : 'none';
-  });
-}
-
-// Detect browser language
-const bl = (navigator.language||'en').toLowerCase().substring(0,2);
-const supported = ['en','tr','ru','es'];
-setLang(supported.includes(bl)?bl:'en');
-
-// ── Waveform animation ──
-const canvas = document.getElementById('wave-canvas');
-const ctx = canvas.getContext('2d');
-let points = Array.from({length:80}, ()=>9+Math.random()*4);
-let frame=0;
-
-function resizeCanvas(){
-  canvas.width = canvas.parentElement.offsetWidth;
-  canvas.height = 60;
-}
-resizeCanvas();
-window.addEventListener('resize',resizeCanvas);
-
-function drawWave(){
-  const w=canvas.width, h=canvas.height;
-  ctx.clearRect(0,0,w,h);
-
-  // Add new point
-  if(frame%2===0){
-    const newVal = points[points.length-1] + (Math.random()-0.5)*1.5;
-    points.push(Math.min(20,Math.max(4,newVal)));
-    if(points.length>80)points.shift();
-  }
-
-  const max=Math.max(...points);
-  const min=Math.min(...points);
-  const range=max-min||1;
-
-  ctx.beginPath();
-  const step=w/(points.length-1);
-  points.forEach((v,i)=>{
-    const x=i*step;
-    const y=h-4-(v-min)/range*(h-12);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
-
-  const grad=ctx.createLinearGradient(0,0,w,0);
-  grad.addColorStop(0,'rgba(255,184,0,0.3)');
-  grad.addColorStop(1,'rgba(255,184,0,0.9)');
-  ctx.strokeStyle=grad;
-  ctx.lineWidth=2;
-  ctx.stroke();
-
-  // Fill
-  ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
-  const fillGrad=ctx.createLinearGradient(0,0,0,h);
-  fillGrad.addColorStop(0,'rgba(255,184,0,0.15)');
-  fillGrad.addColorStop(1,'rgba(255,184,0,0)');
-  ctx.fillStyle=fillGrad;
-  ctx.fill();
-
-  frame++;
-  requestAnimationFrame(drawWave);
-}
-drawWave();
-
-// ── Live watt simulation ──
-let watt = 9.8;
-function animateWatt(){
-  watt += (Math.random()-0.48)*0.3;
-  watt = Math.min(18,Math.max(5,watt));
-  document.getElementById('watt-num').textContent = watt.toFixed(1);
-  // update breakdown proportionally
-  const cpu = (watt*0.50).toFixed(1);
-  const gpu = (watt*0.05+0.3).toFixed(1);
-  const ram = (watt*0.14).toFixed(1);
-  const oth = (watt - cpu - gpu - ram).toFixed(1);
-  document.getElementById('bd-cpu').textContent=cpu+' W';
-  document.getElementById('bd-gpu').textContent=gpu+' W';
-  document.getElementById('bd-ram').textContent=ram+' W';
-  document.getElementById('bd-other').textContent=oth+' W';
-
-  const badge = document.getElementById('eff-badge');
-  const labels = {
-    en:['⚡ EFFICIENT','✦ BALANCED','🔥 HIGH LOAD'],
-    tr:['⚡ VERİMLİ','✦ DENGELİ','🔥 YÜKSEK'],
-    ru:['⚡ ЭФФЕКТ.','✦ БАЛАНС','🔥 НАГРУЗКА'],
-    es:['⚡ EFICIENTE','✦ EQUILIBRADO','🔥 CARGA ALTA']
-  };
-  const activeLang = document.querySelector('.lang-nav button.active')?.id?.replace('btn-','') || 'en';
-  const lvl = watt<12?0:watt<16?1:2;
-  badge.textContent=(labels[activeLang]||labels.en)[lvl];
-  badge.style.color=lvl===0?'#4ADE80':lvl===1?'#FFB800':'#FF6B6B';
-  setTimeout(animateWatt, 1200+Math.random()*800);
-}
-setTimeout(animateWatt,1500);
-</script>
+<script src="js/index.js"></script>
 </body>
 </html>

@@ -137,10 +137,10 @@ footer{border-top:1px solid var(--border);padding:48px 24px 40px;text-align:cent
   </a>
   <div class="nav-right">
     <div class="lang-nav">
-      <button onclick="setLang('en')" id="btn-en">EN</button>
-      <button onclick="setLang('tr')" id="btn-tr">TR</button>
-      <button onclick="setLang('ru')" id="btn-ru">RU</button>
-      <button onclick="setLang('es')" id="btn-es">ES</button>
+      <button id="btn-en">EN</button>
+      <button id="btn-tr">TR</button>
+      <button id="btn-ru">RU</button>
+      <button id="btn-es">ES</button>
     </div>
     <div class="nav-links">
       <a href="privacy.html" id="nav-privacy">Privacy</a>
@@ -422,33 +422,6 @@ footer{border-top:1px solid var(--border);padding:48px 24px 40px;text-align:cent
   <p class="footer-copy">© 2026 LuminaCore · Onur Yasar · lemoras</p>
 </footer>
 
-<script>
-const i18n = {
-  'nav-privacy': {en:'Privacy',tr:'Gizlilik',ru:'Конфиденциальность',es:'Privacidad'},
-  'nav-terms':   {en:'Terms',  tr:'Koşullar',ru:'Условия',           es:'Términos'},
-  'footer-mac':  {en:'macOS Version',tr:'macOS Sürümü',ru:'Версия для macOS',es:'Versión macOS'},
-  'footer-privacy':{en:'Privacy Policy',tr:'Gizlilik Politikası',ru:'Конфиденциальность',es:'Privacidad'},
-  'footer-terms':  {en:'Terms of Use',tr:'Kullanım Koşulları',ru:'Условия использования',es:'Términos de uso'},
-};
-
-function setLang(l) {
-  ['en','tr','ru','es'].forEach(lng => {
-    const block = document.getElementById('lang-' + lng);
-    if (block) block.classList.toggle('active', lng === l);
-    const btn = document.getElementById('btn-' + lng);
-    if (btn) btn.classList.toggle('active', lng === l);
-  });
-  Object.keys(i18n).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = i18n[id][l] || i18n[id].en;
-  });
-  localStorage.setItem('lc-lang', l);
-}
-
-const saved = localStorage.getItem('lc-lang');
-const browser = (navigator.language || 'en').toLowerCase().substring(0, 2);
-const lang = saved || (['en','tr','ru','es'].includes(browser) ? browser : 'en');
-setLang(lang);
-</script>
+<script src="../js/win-index.js"></script>
 </body>
 </html>

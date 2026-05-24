@@ -34,15 +34,15 @@ body{
   background-size:60px 60px;
 }
 .lang-nav{
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  display:flex;gap:4px;padding:5px;
+  position:fixed;top:16px;right:16px;
+  display:flex;gap:4px;padding:4px;
   background:rgba(13,13,26,0.8);
   border:1px solid var(--border);
   backdrop-filter:blur(24px);border-radius:100px;z-index:1000;
 }
 .lang-nav button{
-  padding:7px 16px;border:none;background:transparent;
-  color:var(--muted);font-size:12px;font-weight:600;
+  padding:5px 10px;border:none;background:transparent;
+  color:var(--muted);font-size:11px;font-weight:600;
   font-family:var(--font);cursor:pointer;border-radius:100px;
   letter-spacing:.5px;transition:all .25s;
 }
@@ -142,10 +142,10 @@ footer{
 <div class="grid-bg"></div>
 
 <nav class="lang-nav">
-  <button onclick="setLang('en')" id="btn-en">EN</button>
-  <button onclick="setLang('tr')" id="btn-tr">TR</button>
-  <button onclick="setLang('ru')" id="btn-ru">RU</button>
-  <button onclick="setLang('es')" id="btn-es">ES</button>
+  <button id="btn-en">EN</button>
+  <button id="btn-tr">TR</button>
+  <button id="btn-ru">RU</button>
+  <button id="btn-es">ES</button>
 </nav>
 
 <div class="page">
@@ -344,26 +344,6 @@ footer{
   <p class="footer-copy">© 2026 LuminaCore · Onur Yasar · lemoras</p>
 </footer>
 
-<script>
-const backLabels={en:'Back to LuminaCore',tr:'LuminaCore\'a Dön',ru:'Назад к LuminaCore',es:'Volver a LuminaCore'};
-const termsLabels={en:'Terms of Use',tr:'Kullanım Koşulları',ru:'Условия использования',es:'Términos de uso'};
-const coffeeLabels={en:'☕ Buy Me a Coffee',tr:'☕ Bana Kahve Ismarla',ru:'☕ Угостить кофе',es:'☕ Invítame un café'};
-const signatureLabels={en:'A LEMORAS PROJECT',tr:'A LEMORAS PROJECT',ru:'ПРОЕКТ LEMORAS',es:'UN PROYECTO LEMORAS'};
-const devLabels={en:'Developed by Onur Yasar',tr:'Onur Yaşar tarafından geliştirildi',ru:'Разработано Onur Yasar',es:'Desarrollado por Onur Yaşar'};
-function setLang(l){
-  ['en','tr','ru','es'].forEach(lng=>{
-    const b=document.getElementById('lang-'+lng);
-    if(b)b.classList.toggle('active',lng===l);
-    document.getElementById('btn-'+lng).classList.toggle('active',lng===l);
-  });
-  document.querySelector('.lbl-back').textContent=backLabels[l]||backLabels.en;
-  document.querySelector('.lbl-terms').textContent=termsLabels[l]||termsLabels.en;
-  document.querySelector('.lbl-coffee').textContent=coffeeLabels[l]||coffeeLabels.en;
-  document.querySelector('.lbl-signature').textContent=signatureLabels[l]||signatureLabels.en;
-  document.querySelector('.lbl-dev').textContent=devLabels[l]||devLabels.en;
-}
-const bl=(navigator.language||'en').toLowerCase().substring(0,2);
-setLang(['en','tr','ru','es'].includes(bl)?bl:'en');
-</script>
+<script src="../js/win-privacy.js"></script>
 </body>
 </html>
