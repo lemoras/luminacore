@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumina Core — Live Power Monitor for Mac</title>
-<meta name="description" content="See every watt your Mac consumes in real time. Cost projections, per-app analytics, historical trends. Available on the Mac App Store.">
-<meta property="og:title" content="Lumina Core — Live Power Monitor for Mac">
-<meta property="og:description" content="See every watt your Mac consumes in real time.">
+<title>Lumina Core — Live Power Monitor for macOS</title>
+<meta name="description" content="See every watt your device consumes in real time. Cost projections, per-app analytics, historical trends. Available on the App Store.">
+<meta property="og:title" content="Lumina Core — Live Power Monitor for macOS">
+<meta property="og:description" content="See every watt your device consumes in real time.">
 <meta property="og:image" content="https://luminacore.onuryasar.org/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -148,18 +148,10 @@ h1 em{
   max-width:600px;margin:0 auto 36px;line-height:1.7;
 }
 
-.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
-.btn-store{
-  display:inline-flex;align-items:center;gap:10px;
-  background:var(--amber);color:#000;
-  font-family:var(--font);font-weight:700;font-size:14px;
-  padding:14px 26px;border-radius:14px;
-  border:none;cursor:pointer;text-decoration:none;
-  box-shadow:0 0 24px rgba(255,184,0,0.3);
-  transition:all .2s;
-}
-.btn-store:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,184,0,0.45);}
-.btn-store svg{width:20px;height:20px;}
+.cta-row{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
+.store-link{transition:0.3s cubic-bezier(0.2, 0, 0, 1);display:inline-block;}
+.store-link:hover{transform:translateY(-4px);filter:brightness(1.1);}
+.store-badge{height:54px;width:auto;display:block;}
 
 .platform-pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -454,20 +446,17 @@ footer{
     </h1>
 
     <p class="hero-p">
-      <span data-lang="en" class="active">Real-time power consumption monitoring for every Mac. Track watts, calculate electricity costs, analyze per-app energy usage — all on-device, all private.</span>
-      <span data-lang="tr">Her Mac için gerçek zamanlı güç tüketimi izleme. Watt'ları takip et, elektrik maliyetlerini hesapla, uygulama bazında enerji kullanımını analiz et — tamamı cihazında, tamamı özel.</span>
-      <span data-lang="ru">Мониторинг потребления энергии в реальном времени для любого Mac. Отслеживайте ватты, рассчитывайте стоимость электричества, анализируйте энергопотребление по приложениям.</span>
-      <span data-lang="es">Monitoreo en tiempo real del consumo eléctrico para cualquier Mac. Rastrea vatios, calcula costos de electricidad, analiza el uso de energía por app — todo en tu dispositivo, todo privado.</span>
+      <span data-lang="en" class="active">Real-time power consumption monitoring for macOS. Track watts, calculate electricity costs, analyze per-app energy usage — all on-device, all private.</span>
+      <span data-lang="tr">macOS için gerçek zamanlı güç tüketimi izleme. Watt'ları takip et, elektrik maliyetlerini hesapla, uygulama bazında enerji kullanımını analiz et — tamamı cihazında, tamamı özel.</span>
+      <span data-lang="ru">Мониторинг потребления энергии в реальном времени для любого устройства. Отслеживайте ватты, рассчитывайте стоимость электричества, анализируйте энергопотребление по приложениям.</span>
+      <span data-lang="es">Monitoreo en tiempo real del consumo eléctrico para macOS. Rastrea vatios, calcula costos de electricidad, analiza el uso de energía por app — todo en tu dispositivo, todo privado.</span>
     </p>
 
     <div class="cta-row">
-      <a href="https://apps.apple.com/app/id6770494912" class="btn-store">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        <span data-lang="en" class="active">Download on Mac App Store</span>
-        <span data-lang="tr">Mac App Store'dan İndir</span>
-        <span data-lang="ru">Загрузить в Mac App Store</span>
-        <span data-lang="es">Descargar en Mac App Store</span>
-      </a>
+      <a href="https://apps.apple.com/app/id6770494912" class="store-link active" data-lang="en" aria-label="Download on the App Store"><img src="badges/app-store-en.svg" alt="Download on the App Store" class="store-badge"></a>
+      <a href="https://apps.apple.com/app/id6770494912" class="store-link" data-lang="tr" aria-label="App Store'dan İndir"><img src="badges/app-store-tr.svg" alt="App Store'dan İndir" class="store-badge"></a>
+      <a href="https://apps.apple.com/app/id6770494912" class="store-link" data-lang="ru" aria-label="Загрузите в App Store"><img src="badges/app-store-ru.svg" alt="Загрузите в App Store" class="store-badge"></a>
+      <a href="https://apps.apple.com/app/id6770494912" class="store-link" data-lang="es" aria-label="Consíguelo en el App Store"><img src="badges/app-store-es.svg" alt="Consíguelo en el App Store" class="store-badge"></a>
     </div>
 
     <div class="platform-pill">
@@ -544,10 +533,10 @@ footer{
         </div>
 
         <p class="stat-note">
-          <span data-lang="en" class="active">Estimated via Statistical Model · Mac (Apple M4) · Power Adapter</span>
-          <span data-lang="tr">İstatistiksel Model ile Tahmin Edildi · Mac (Apple M4) · Güç Adaptörü</span>
-          <span data-lang="ru">Оценено статистической моделью · Mac (Apple M4) · Адаптер питания</span>
-          <span data-lang="es">Estimado por modelo estadístico · Mac (Apple M4) · Adaptador de corriente</span>
+          <span data-lang="en" class="active">Estimated via Statistical Model · Apple Silicon (M4) · Power Adapter</span>
+          <span data-lang="tr">İstatistiksel Model ile Tahmin Edildi · Apple Silicon (M4) · Güç Adaptörü</span>
+          <span data-lang="ru">Оценено статистической моделью · Apple Silicon (M4) · Адаптер питания</span>
+          <span data-lang="es">Estimado por modelo estadístico · Apple Silicon (M4) · Adaptador de corriente</span>
         </p>
       </div>
     </div>
@@ -599,10 +588,10 @@ footer{
     <p class="section-label" data-lang="es" style="display:none">Características</p>
 
     <h2 class="section-title">
-      <span data-lang="en" class="active">Everything you need to<br>understand your Mac's power.</span>
-      <span data-lang="tr">Mac'inizin gücünü anlamak için<br>ihtiyacınız olan her şey.</span>
-      <span data-lang="ru">Всё необходимое для понимания<br>энергопотребления вашего Mac.</span>
-      <span data-lang="es">Todo lo que necesitas para entender<br>el consumo de tu Mac.</span>
+      <span data-lang="en" class="active">Everything you need to<br>understand your device's power.</span>
+      <span data-lang="tr">cihazınızın gücünü anlamak için<br>ihtiyacınız olan her şey.</span>
+      <span data-lang="ru">Всё необходимое для понимания<br>энергопотребления вашего устройства.</span>
+      <span data-lang="es">Todo lo que necesitas para entender<br>el consumo de tu dispositivo.</span>
     </h2>
 
     <div class="features-grid">
@@ -615,8 +604,8 @@ footer{
           <span data-lang="es">Visualización de vatios en tiempo real</span>
         </div>
         <p class="feat-desc">
-          <span data-lang="en" class="active">Live power consumption visible in your menu bar, updated every second. Know your Mac's energy draw at a glance.</span>
-          <span data-lang="tr">Menü çubuğunda her saniye güncellenen canlı güç tüketimi. Mac'inizin enerji çekimini bir bakışta görün.</span>
+          <span data-lang="en" class="active">Live power consumption visible in your menu bar, updated every second. Know your device's energy draw at a glance.</span>
+          <span data-lang="tr">Menü çubuğunda her saniye güncellenen canlı güç tüketimi. cihazınızın enerji çekimini bir bakışta görün.</span>
           <span data-lang="ru">Живое потребление мощности в строке меню, обновляется каждую секунду.</span>
           <span data-lang="es">Consumo de energía en vivo en tu barra de menú, actualizado cada segundo.</span>
         </p>
@@ -631,10 +620,10 @@ footer{
           <span data-lang="es">Calculadora de costo eléctrico</span>
         </div>
         <p class="feat-desc">
-          <span data-lang="en" class="active">Hourly, daily, and monthly cost projections in 8 currencies (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Set your local electricity rate and see exactly what your Mac costs to run.</span>
-          <span data-lang="tr">8 para biriminde saatlik, günlük ve aylık maliyet projeksiyonları (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Yerel elektrik tarifenizi ayarlayın ve Mac'inizin tam maliyetini görün.</span>
-          <span data-lang="ru">Прогноз затрат по часам, дням и месяцам в 8 валютах (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Укажите местный тариф и узнайте точную стоимость работы Mac.</span>
-          <span data-lang="es">Proyecciones de costo por hora, día y mes en 8 monedas (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Configura tu tarifa local y ve exactamente cuánto cuesta usar tu Mac.</span>
+          <span data-lang="en" class="active">Hourly, daily, and monthly cost projections in 8 currencies (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Set your local electricity rate and see exactly what your device costs to run.</span>
+          <span data-lang="tr">8 para biriminde saatlik, günlük ve aylık maliyet projeksiyonları (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Yerel elektrik tarifenizi ayarlayın ve cihazınızın tam maliyetini görün.</span>
+          <span data-lang="ru">Прогноз затрат по часам, дням и месяцам в 8 валютах (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Укажите местный тариф и узнайте точную стоимость работы устройства.</span>
+          <span data-lang="es">Proyecciones de costo por hora, día y mes en 8 monedas (USD, EUR, GBP, TRY, JPY, CHF, RUB, PLN). Configura tu tarifa local y ve exactamente cuánto cuesta usar tu dispositivo.</span>
         </p>
       </div>
 
@@ -695,10 +684,10 @@ footer{
           <span data-lang="es">100% privado y en el dispositivo</span>
         </div>
         <p class="feat-desc">
-          <span data-lang="en" class="active">No data ever leaves your Mac. No accounts, no tracking, no cloud. Pure local intelligence. App Store sandboxed.</span>
-          <span data-lang="tr">Hiçbir veri Mac'inizden çıkmaz. Hesap yok, takip yok, bulut yok. Saf yerel zeka.</span>
-          <span data-lang="ru">Никакие данные не покидают ваш Mac. Без аккаунтов, трекинга и облака.</span>
-          <span data-lang="es">Ningún dato sale de tu Mac. Sin cuentas, sin rastreo, sin nube.</span>
+          <span data-lang="en" class="active">No data ever leaves your device. No accounts, no tracking, no cloud. Pure local intelligence. App Store sandboxed.</span>
+          <span data-lang="tr">Hiçbir veri cihazınızdan çıkmaz. Hesap yok, takip yok, bulut yok. Saf yerel zeka.</span>
+          <span data-lang="ru">Никакие данные не покидают ваше устройство. Без аккаунтов, трекинга и облака.</span>
+          <span data-lang="es">Ningún dato sale de tu dispositivo. Sin cuentas, sin rastreo, sin nube.</span>
         </p>
       </div>
     </div>
@@ -716,10 +705,10 @@ footer{
         <p class="section-label" data-lang="es" style="display:none">La privacidad primero</p>
 
         <h3 class="section-title" style="font-size:1.8rem;">
-          <span data-lang="en" class="active">Your data never leaves your Mac.</span>
-          <span data-lang="tr">Verileriniz asla Mac'inizden çıkmaz.</span>
-          <span data-lang="ru">Ваши данные никогда не покидают Mac.</span>
-          <span data-lang="es">Tus datos nunca salen de tu Mac.</span>
+          <span data-lang="en" class="active">Your data never leaves your device.</span>
+          <span data-lang="tr">Verileriniz asla cihazınızdan çıkmaz.</span>
+          <span data-lang="ru">Ваши данные никогда не покидают устройство.</span>
+          <span data-lang="es">Tus datos nunca salen de tu dispositivo.</span>
         </h3>
 
         <ul class="privacy-list">
@@ -736,10 +725,10 @@ footer{
             <span data-lang="es">No requiere cuenta ni inicio de sesión</span>
           </li>
           <li>
-            <span data-lang="en" class="active">All measurements stored only on your Mac</span>
-            <span data-lang="tr">Tüm ölçümler yalnızca Mac'inizde saklanır</span>
-            <span data-lang="ru">Все измерения хранятся только на вашем Mac</span>
-            <span data-lang="es">Todas las mediciones se almacenan solo en tu Mac</span>
+            <span data-lang="en" class="active">All measurements stored only on your device</span>
+            <span data-lang="tr">Tüm ölçümler yalnızca cihazınızda saklanır</span>
+            <span data-lang="ru">Все измерения хранятся только на вашем устройстве</span>
+            <span data-lang="es">Todas las mediciones se almacenan solo en tu dispositivo</span>
           </li>
           <li>
             <span data-lang="en" class="active">macOS App Store sandboxed — verified by Apple</span>
@@ -763,10 +752,10 @@ footer{
     <p class="section-label" data-lang="es" style="display:none">Compatible con</p>
 
     <h3 class="section-title" style="font-size:1.6rem;">
-      <span data-lang="en" class="active">Every Mac. Every chip. Every generation.</span>
-      <span data-lang="tr">Her Mac. Her işlemci. Her nesil.</span>
-      <span data-lang="ru">Любой Mac. Любой чип. Любое поколение.</span>
-      <span data-lang="es">Cada Mac. Cada chip. Cada generación.</span>
+      <span data-lang="en" class="active">Every device. Every chip. Every generation.</span>
+      <span data-lang="tr">Her cihaz. Her işlemci. Her nesil.</span>
+      <span data-lang="ru">Любое устройство. Любой чип. Любое поколение.</span>
+      <span data-lang="es">Cada dispositivo. Cada chip. Cada generación.</span>
     </h3>
 
     <div class="chip-grid">
@@ -822,10 +811,10 @@ footer{
       ">
         <span style="font-size:32px;">🖥</span>
         <span style="font-weight:700; color:var(--amber); font-size:1rem; letter-spacing:.5px;">macOS</span>
-        <span data-lang="en"  style="font-size:.8rem; color:var(--muted);" class="active">Mac Screenshots</span>
-        <span data-lang="tr"  style="font-size:.8rem; color:var(--muted); display:none">Mac Ekranları</span>
-        <span data-lang="ru"  style="font-size:.8rem; color:var(--muted); display:none">Скрины Mac</span>
-        <span data-lang="es"  style="font-size:.8rem; color:var(--muted); display:none">Capturas Mac</span>
+        <span data-lang="en"  style="font-size:.8rem; color:var(--muted);" class="active">macOS Screenshots</span>
+        <span data-lang="tr"  style="font-size:.8rem; color:var(--muted); display:none">macOS Ekranları</span>
+        <span data-lang="ru"  style="font-size:.8rem; color:var(--muted); display:none">Скрины macOS</span>
+        <span data-lang="es"  style="font-size:.8rem; color:var(--muted); display:none">Capturas macOS</span>
       </a>
     </div>
   </div>
